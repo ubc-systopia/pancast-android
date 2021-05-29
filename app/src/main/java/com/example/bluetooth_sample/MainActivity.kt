@@ -4,10 +4,12 @@ import android.annotation.SuppressLint
 import android.bluetooth.BluetoothAdapter
 import android.bluetooth.le.*
 import android.content.Intent
+import android.net.Uri
 import android.os.Build
 import android.os.Bundle
 import android.os.Handler
 import android.os.ParcelUuid
+import android.provider.Settings
 import android.text.TextUtils
 import android.util.Log
 import android.view.View
@@ -31,12 +33,45 @@ class MainActivity : AppCompatActivity() {
     var mPairedBtn: Button? = null
     var mAdvertisementBtn: Button? = null
     var mAdvertisementBtn2: Button? = null
+    var mEnableGPSBtn: Button? = null
+    var mDisableGPSBtn: Button? = null
     var mBlueAdapter: BluetoothAdapter? = null
     var mAdvertiser: BluetoothLeAdvertiser? = null
     private var mBluetoothLeScanner: BluetoothLeScanner? = null
     private val mHandler: Handler = Handler()
     @RequiresApi(Build.VERSION_CODES.LOLLIPOP)
     @SuppressLint("SetTextI18n")
+
+    val mScanCallback: ScanCallback = object : ScanCallback() {
+        override fun onScanResult(callbackType: Int, result: ScanResult?) {
+            showToast("onScanResult")
+            Log.d("ADV_LOG", "onScanResult init()")
+            super.onScanResult(callbackType, result)
+            if (result == null || result.device == null || TextUtils.isEmpty(result.device.name)) return
+            val builder = StringBuilder(result.device.name)
+            builder.append("\n").append(
+                String(
+                    result.scanRecord!!.getServiceData(
+                        result.scanRecord!!.serviceUuids[0]
+                    )!!, Charset.forName("UTF-8")
+                )
+            )
+            Log.d("ADV_LOG", builder.toString())
+        }
+
+        override fun onBatchScanResults(results: List<ScanResult?>?) {
+            showToast("onBatchScanResults")
+            super.onBatchScanResults(results)
+        }
+
+        override fun onScanFailed(errorCode: Int) {
+            showToast("onScanFailed")
+            Log.e("BLE", "Discovery onScanFailed: $errorCode")
+            super.onScanFailed(errorCode)
+        }
+    }
+
+    @RequiresApi(Build.VERSION_CODES.LOLLIPOP)
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_main)
@@ -49,38 +84,13 @@ class MainActivity : AppCompatActivity() {
         mPairedBtn = findViewById(R.id.pairedBtn)
         mAdvertisementBtn = findViewById(R.id.advertisementBtn)
         mAdvertisementBtn2 = findViewById(R.id.advertisementBtn2)
+        mEnableGPSBtn = findViewById(R.id.enableGPSBtn)
+        mDisableGPSBtn = findViewById(R.id.disableGPSBtn)
 
         mBlueAdapter = BluetoothAdapter.getDefaultAdapter()
 
         // callback to be called when scanning for advertisements
-        val mScanCallback: ScanCallback = object : ScanCallback() {
-            override fun onScanResult(callbackType: Int, result: ScanResult?) {
-                showToast("onScanResult")
-                Log.d("ADV_LOG", "onScanResult init()")
-                super.onScanResult(callbackType, result)
-                if (result == null || result.device == null || TextUtils.isEmpty(result.device.name)) return
-                val builder = StringBuilder(result.device.name)
-                builder.append("\n").append(
-                    String(
-                        result.scanRecord!!.getServiceData(
-                            result.scanRecord!!.serviceUuids[0]
-                        )!!, Charset.forName("UTF-8")
-                    )
-                )
-                Log.d("ADV_LOG", builder.toString())
-            }
 
-            override fun onBatchScanResults(results: List<ScanResult?>?) {
-                showToast("onBatchScanResults")
-                super.onBatchScanResults(results)
-            }
-
-            override fun onScanFailed(errorCode: Int) {
-                showToast("onScanFailed")
-                Log.e("BLE", "Discovery onScanFailed: $errorCode")
-                super.onScanFailed(errorCode)
-            }
-        }
 
         //check if bluetooth is available or not
         if (mBlueAdapter == null) {
@@ -100,103 +110,173 @@ class MainActivity : AppCompatActivity() {
 
         //on btn click
         mOnBtn?.setOnClickListener(View.OnClickListener {
-            if (!mBlueAdapter?.isEnabled()!!) {
-                showToast("Turning On Bluetooth...")
-                //intent to on bluetooth
-                val intent = Intent(BluetoothAdapter.ACTION_REQUEST_ENABLE)
-                startActivityForResult(intent, REQUEST_ENABLE_BT)
-            } else {
-                showToast("Bluetooth is already on")
-            }
+            enableBluetooth()
         })
         //discover bluetooth btn click
         mDiscoverBtn?.setOnClickListener(View.OnClickListener {
-            if (!mBlueAdapter?.isDiscovering()!!) {
-                showToast("Making Your Device Discoverable")
-                val intent = Intent(BluetoothAdapter.ACTION_REQUEST_DISCOVERABLE)
-                startActivityForResult(intent, REQUEST_DISCOVER_BT)
-            }
+            discoverBluetoothDevices()
         })
         //off btn click
         mOffBtn?.setOnClickListener(View.OnClickListener {
-            if (mBlueAdapter?.isEnabled() == true) {
-                mBlueAdapter!!.disable()
-                showToast("Turning Bluetooth Off")
-                mBlueIv?.setImageResource(R.drawable.ic_action_off)
-            } else {
-                showToast("Bluetooth is already off")
-            }
+            disableBluetooth()
         })
         //get paired devices btn click
         mPairedBtn?.setOnClickListener(View.OnClickListener {
-            if (mBlueAdapter?.isEnabled() == true) {
-                mPairedTv?.setText("Paired Devices")
-                val devices = mBlueAdapter?.getBondedDevices()
-                if (devices != null) {
-                    for (device in devices) {
-                        mPairedTv?.append(
-                            """
-                                        
-                                        Device: ${device.name}, $device
-                                        """.trimIndent()
-                        )
-                    }
-                }
-            } else {
-                //bluetooth is off so can't get paired devices
-                showToast("Turn on bluetooth to get paired devices")
-            }
+            getPairedDevices()
         })
 
         // start broadcasting advertisements
         mAdvertisementBtn?.setOnClickListener(View.OnClickListener {
-            if (mBlueAdapter?.isEnabled() == true) {
-                Log.d("DEBUG", "advertisement starting")
-                val settings = AdvertiseSettings.Builder()
-                    .setAdvertiseMode(AdvertiseSettings.ADVERTISE_MODE_LOW_LATENCY)
-                    .setTxPowerLevel(AdvertiseSettings.ADVERTISE_TX_POWER_HIGH)
-                    .setConnectable(false)
-                    .build()
-                Log.d("DEBUG", "settings initialized")
-                val pUuid = ParcelUuid(UUID.fromString("47c6beb5-8a97-4019-9263-3d9009c2d852"))
-                Log.d("DEBUG", "UUID initialized")
-                val data = AdvertiseData.Builder()
-                    .setIncludeDeviceName(false)
-                    .addServiceData(pUuid, "Data".toByteArray(Charset.forName("UTF-8")))
-                    .build()
-                Log.d("DEBUG", "data initialized")
-                val advertisingCallback: AdvertiseCallback = object : AdvertiseCallback() {
-                    override fun onStartSuccess(settingsInEffect: AdvertiseSettings) {
-                        super.onStartSuccess(settingsInEffect)
-                    }
-
-                    override fun onStartFailure(errorCode: Int) {
-                        Log.e("BLE", "Advertising onStartFailure: $errorCode")
-                        super.onStartFailure(errorCode)
-                    }
-                }
-                Log.d("DEBUG", "callback initialized")
-                mAdvertiser?.startAdvertising(settings, data, advertisingCallback)
-                Log.d("DEBUG", "advertising initialized")
-            } else {
-                showToast("Turn on bluetooth to advertise")
-            }
+            handleBroadcastingAdvertisements()
         })
 
         // start listening for advertisements
         mAdvertisementBtn2?.setOnClickListener(View.OnClickListener {
-            if (mBlueAdapter?.isEnabled() == true) {
-                showToast("Getting advertisements...")
-                val filters: List<ScanFilter> = listOf()
-                val settings = ScanSettings.Builder()
-                    .setScanMode(ScanSettings.SCAN_MODE_LOW_LATENCY)
-                    .build()
-                if (mBluetoothLeScanner is BluetoothLeScanner) showToast("a") else showToast("b")
-                mBluetoothLeScanner?.startScan(null, settings, mScanCallback)
-            } else {
-                showToast("Turn on bluetooth to receive advertisements")
-            }
+            handleScanningForAdvertisements()
         })
+
+        // enable GPS
+        mEnableGPSBtn?.setOnClickListener {
+            showToast("enabling GPS...")
+            turnGPSOn()
+
+        }
+
+        mDisableGPSBtn?.setOnClickListener {
+            showToast("enabling GPS...")
+            turnGPSOff()
+        }
+
+    }
+
+    // gotten from:
+    // https://stackoverflow.com/questions/4721449/how-can-i-enable-or-disable-the-gps-programmatically-on-android
+    private fun turnGPSOn() {
+        val provider: String =
+            Settings.Secure.getString(contentResolver, Settings.Secure.LOCATION_PROVIDERS_ALLOWED)
+        if (!provider.contains("gps")) { //if gps is disabled
+            val poke = Intent()
+            poke.setClassName(
+                "com.android.settings",
+                "com.android.settings.widget.SettingsAppWidgetProvider"
+            )
+            poke.addCategory(Intent.CATEGORY_ALTERNATIVE)
+            poke.data = Uri.parse("3")
+            sendBroadcast(poke)
+        }
+    }
+
+    // gotten from above link
+    private fun turnGPSOff() {
+        val provider: String =
+            Settings.Secure.getString(contentResolver, Settings.Secure.LOCATION_PROVIDERS_ALLOWED)
+        if (provider.contains("gps")) { //if gps is enabled
+            val poke = Intent()
+            poke.setClassName(
+                "com.android.settings",
+                "com.android.settings.widget.SettingsAppWidgetProvider"
+            )
+            poke.addCategory(Intent.CATEGORY_ALTERNATIVE)
+            poke.data = Uri.parse("3")
+            sendBroadcast(poke)
+        }
+    }
+
+    private fun discoverBluetoothDevices() {
+        if (!mBlueAdapter?.isDiscovering()!!) {
+            showToast("Making Your Device Discoverable")
+            val intent = Intent(BluetoothAdapter.ACTION_REQUEST_DISCOVERABLE)
+            startActivityForResult(intent, REQUEST_DISCOVER_BT)
+        }
+    }
+
+    private fun enableBluetooth() {
+        if (!mBlueAdapter?.isEnabled()!!) {
+            showToast("Turning On Bluetooth...")
+            //intent to on bluetooth
+            val intent = Intent(BluetoothAdapter.ACTION_REQUEST_ENABLE)
+            startActivityForResult(intent, REQUEST_ENABLE_BT)
+        } else {
+            showToast("Bluetooth is already on")
+        }
+    }
+
+    private fun disableBluetooth() {
+        if (mBlueAdapter?.isEnabled() == true) {
+            mBlueAdapter!!.disable()
+            showToast("Turning Bluetooth Off")
+            mBlueIv?.setImageResource(R.drawable.ic_action_off)
+        } else {
+            showToast("Bluetooth is already off")
+        }
+    }
+
+    private fun getPairedDevices() {
+        if (mBlueAdapter?.isEnabled() == true) {
+            mPairedTv?.setText("Paired Devices")
+            val devices = mBlueAdapter?.getBondedDevices()
+            if (devices != null) {
+                for (device in devices) {
+                    mPairedTv?.append(
+                        """
+                                            Device: ${device.name}, $device
+                                            """.trimIndent()
+                    )
+                }
+            }
+        } else {
+            //bluetooth is off so can't get paired devices
+            showToast("Turn on bluetooth to get paired devices")
+        }
+    }
+
+    @RequiresApi(Build.VERSION_CODES.LOLLIPOP)
+    private fun handleBroadcastingAdvertisements() {
+        if (mBlueAdapter?.isEnabled() == true) {
+            Log.d("DEBUG", "advertisement starting")
+            val settings = AdvertiseSettings.Builder()
+                .setAdvertiseMode(AdvertiseSettings.ADVERTISE_MODE_LOW_LATENCY)
+                .setTxPowerLevel(AdvertiseSettings.ADVERTISE_TX_POWER_HIGH)
+                .setConnectable(false)
+                .build()
+            Log.d("DEBUG", "settings initialized")
+            val pUuid = ParcelUuid(UUID.fromString("47c6beb5-8a97-4019-9263-3d9009c2d852"))
+            Log.d("DEBUG", "UUID initialized")
+            val data = AdvertiseData.Builder()
+                .setIncludeDeviceName(false)
+                .addServiceData(pUuid, "Data".toByteArray(Charset.forName("UTF-8")))
+                .build()
+            Log.d("DEBUG", "data initialized")
+            val advertisingCallback: AdvertiseCallback = object : AdvertiseCallback() {
+                override fun onStartSuccess(settingsInEffect: AdvertiseSettings) {
+                    super.onStartSuccess(settingsInEffect)
+                }
+
+                override fun onStartFailure(errorCode: Int) {
+                    Log.e("BLE", "Advertising onStartFailure: $errorCode")
+                    super.onStartFailure(errorCode)
+                }
+            }
+            Log.d("DEBUG", "callback initialized")
+            mAdvertiser?.startAdvertising(settings, data, advertisingCallback)
+            Log.d("DEBUG", "advertising initialized")
+        } else {
+            showToast("Turn on bluetooth to advertise")
+        }
+    }
+
+    @RequiresApi(Build.VERSION_CODES.LOLLIPOP)
+    fun handleScanningForAdvertisements() {
+        if (mBlueAdapter?.isEnabled() == true) {
+            showToast("Getting advertisements...")
+            val filters: List<ScanFilter> = listOf(ScanFilter.Builder().build())
+            val settings = ScanSettings.Builder()
+                .setScanMode(ScanSettings.SCAN_MODE_LOW_LATENCY)
+                .build()
+            mBluetoothLeScanner?.startScan(filters, settings, mScanCallback)
+        } else {
+            showToast("Turn on bluetooth to receive advertisements")
+        }
     }
 
     override fun onActivityResult(requestCode: Int, resultCode: Int, data: Intent?) {
