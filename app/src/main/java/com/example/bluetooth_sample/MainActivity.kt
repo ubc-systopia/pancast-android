@@ -1,15 +1,14 @@
 package com.blogspot.atifsoftwares.bluetoothexample
 
+import android.Manifest
 import android.annotation.SuppressLint
 import android.bluetooth.BluetoothAdapter
 import android.bluetooth.le.*
 import android.content.Intent
-import android.net.Uri
 import android.os.Build
 import android.os.Bundle
 import android.os.Handler
 import android.os.ParcelUuid
-import android.provider.Settings
 import android.text.TextUtils
 import android.util.Log
 import android.view.View
@@ -18,9 +17,12 @@ import android.widget.ImageView
 import android.widget.TextView
 import android.widget.Toast
 import androidx.annotation.RequiresApi
+import androidx.appcompat.app.AlertDialog
 import androidx.appcompat.app.AppCompatActivity
 import java.nio.charset.Charset
 import java.util.*
+import androidx.fragment.app.Fragment
+import java.lang.reflect.Field
 
 
 class MainActivity : AppCompatActivity() {
@@ -39,24 +41,29 @@ class MainActivity : AppCompatActivity() {
     var mAdvertiser: BluetoothLeAdvertiser? = null
     private var mBluetoothLeScanner: BluetoothLeScanner? = null
     private val mHandler: Handler = Handler()
+    val LOCATION_FINE_PERM = Manifest.permission.ACCESS_FINE_LOCATION
     @RequiresApi(Build.VERSION_CODES.LOLLIPOP)
     @SuppressLint("SetTextI18n")
 
     val mScanCallback: ScanCallback = object : ScanCallback() {
         override fun onScanResult(callbackType: Int, result: ScanResult?) {
-            showToast("onScanResult")
-            Log.d("ADV_LOG", "onScanResult init()")
             super.onScanResult(callbackType, result)
             if (result == null || result.device == null || TextUtils.isEmpty(result.device.name)) return
-            val builder = StringBuilder(result.device.name)
-            builder.append("\n").append(
-                String(
-                    result.scanRecord!!.getServiceData(
-                        result.scanRecord!!.serviceUuids[0]
-                    )!!, Charset.forName("UTF-8")
-                )
-            )
-            Log.d("ADV_LOG", builder.toString())
+            if (result.device.name == "安娜的兔子大军") {
+                Log.d("ADV_LOG", result.toString())
+            }
+//            Log.d("ADV_LOG", result.toString())
+//            super.onScanResult(callbackType, result)
+//            if (result == null || result.device == null || TextUtils.isEmpty(result.device.name)) return
+//            val builder = StringBuilder(result.device.name)
+//            builder.append("\n").append(
+//                String(
+//                    result.scanRecord!!.getServiceData(
+//                        result.scanRecord!!.serviceUuids[0]
+//                    )!!, Charset.forName("UTF-8")
+//                )
+//            )
+//            Log.d("ADV_LOG", builder.toString())
         }
 
         override fun onBatchScanResults(results: List<ScanResult?>?) {
@@ -88,9 +95,6 @@ class MainActivity : AppCompatActivity() {
         mDisableGPSBtn = findViewById(R.id.disableGPSBtn)
 
         mBlueAdapter = BluetoothAdapter.getDefaultAdapter()
-
-        // callback to be called when scanning for advertisements
-
 
         //check if bluetooth is available or not
         if (mBlueAdapter == null) {
@@ -138,49 +142,23 @@ class MainActivity : AppCompatActivity() {
         // enable GPS
         mEnableGPSBtn?.setOnClickListener {
             showToast("enabling GPS...")
-            turnGPSOn()
+            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
+                makeLocationRequest()
+            }
 
         }
 
         mDisableGPSBtn?.setOnClickListener {
-            showToast("enabling GPS...")
-            turnGPSOff()
+            showToast("disabling GPS...")
         }
 
     }
 
-    // gotten from:
-    // https://stackoverflow.com/questions/4721449/how-can-i-enable-or-disable-the-gps-programmatically-on-android
-    private fun turnGPSOn() {
-        val provider: String =
-            Settings.Secure.getString(contentResolver, Settings.Secure.LOCATION_PROVIDERS_ALLOWED)
-        if (!provider.contains("gps")) { //if gps is disabled
-            val poke = Intent()
-            poke.setClassName(
-                "com.android.settings",
-                "com.android.settings.widget.SettingsAppWidgetProvider"
-            )
-            poke.addCategory(Intent.CATEGORY_ALTERNATIVE)
-            poke.data = Uri.parse("3")
-            sendBroadcast(poke)
-        }
-    }
-
-    // gotten from above link
-    private fun turnGPSOff() {
-        val provider: String =
-            Settings.Secure.getString(contentResolver, Settings.Secure.LOCATION_PROVIDERS_ALLOWED)
-        if (provider.contains("gps")) { //if gps is enabled
-            val poke = Intent()
-            poke.setClassName(
-                "com.android.settings",
-                "com.android.settings.widget.SettingsAppWidgetProvider"
-            )
-            poke.addCategory(Intent.CATEGORY_ALTERNATIVE)
-            poke.data = Uri.parse("3")
-            sendBroadcast(poke)
-        }
-    }
+    @RequiresApi(Build.VERSION_CODES.M)
+    private fun makeLocationRequest() = requestPermissions(
+        arrayOf(LOCATION_FINE_PERM),
+        101
+    )
 
     private fun discoverBluetoothDevices() {
         if (!mBlueAdapter?.isDiscovering()!!) {
@@ -269,6 +247,7 @@ class MainActivity : AppCompatActivity() {
     fun handleScanningForAdvertisements() {
         if (mBlueAdapter?.isEnabled() == true) {
             showToast("Getting advertisements...")
+//            val filter: ScanFilter = ScanFilter.Builder().setServiceUuid("0xFD6F").build()
             val filters: List<ScanFilter> = listOf(ScanFilter.Builder().build())
             val settings = ScanSettings.Builder()
                 .setScanMode(ScanSettings.SCAN_MODE_LOW_LATENCY)
