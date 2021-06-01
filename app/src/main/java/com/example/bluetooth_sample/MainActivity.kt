@@ -46,24 +46,18 @@ class MainActivity : AppCompatActivity() {
     @SuppressLint("SetTextI18n")
 
     val mScanCallback: ScanCallback = object : ScanCallback() {
+        @RequiresApi(Build.VERSION_CODES.Q)
         override fun onScanResult(callbackType: Int, result: ScanResult?) {
             super.onScanResult(callbackType, result)
             if (result == null || result.device == null || TextUtils.isEmpty(result.device.name)) return
-            if (result.device.name == "安娜的兔子大军") {
-                Log.d("ADV_LOG", result.toString())
-            }
-//            Log.d("ADV_LOG", result.toString())
-//            super.onScanResult(callbackType, result)
-//            if (result == null || result.device == null || TextUtils.isEmpty(result.device.name)) return
-//            val builder = StringBuilder(result.device.name)
-//            builder.append("\n").append(
-//                String(
-//                    result.scanRecord!!.getServiceData(
-//                        result.scanRecord!!.serviceUuids[0]
-//                    )!!, Charset.forName("UTF-8")
-//                )
-//            )
-//            Log.d("ADV_LOG", builder.toString())
+//            if (result.scanRecord?.advertiseFlags == 26) {
+//                Log.d("ADV_LOG", result.toString())
+//            }
+//            if (result.isLegacy && !result.isConnectable && result.device.address != "5C:C1:D7:D6:91:B3") {
+//                Log.d("NAME", result.device.name)
+                Log.d("ADV_LOG", result.scanRecord?.bytes.toString())
+                Log.d("LEN", result.scanRecord?.bytes.toString().length.toString())
+//            }
         }
 
         override fun onBatchScanResults(results: List<ScanResult?>?) {
