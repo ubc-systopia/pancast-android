@@ -49,14 +49,14 @@ class MainActivity : AppCompatActivity() {
         @RequiresApi(Build.VERSION_CODES.Q)
         override fun onScanResult(callbackType: Int, result: ScanResult?) {
             super.onScanResult(callbackType, result)
-            if (result == null || result.device == null || TextUtils.isEmpty(result.device.name)) return
+//            if (result == null || TextUtils.isEmpty(result.device.name)) return
+            if (result == null) return
 //            if (result.scanRecord?.advertiseFlags == 26) {
 //                Log.d("ADV_LOG", result.toString())
 //            }
-//            if (result.isLegacy && !result.isConnectable && result.device.address != "5C:C1:D7:D6:91:B3") {
-//                Log.d("NAME", result.device.name)
-                Log.d("ADV_LOG", result.scanRecord?.bytes.toString())
-                Log.d("LEN", result.scanRecord?.bytes.toString().length.toString())
+            if (result.isLegacy && !result.isConnectable && result.scanRecord?.advertiseFlags == 26) {
+                Log.d("AYE", result.scanRecord!!.serviceUuids[0].toString())
+            }
 //            }
         }
 
