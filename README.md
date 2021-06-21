@@ -16,3 +16,5 @@ Instructions:
 7) Run app, and hope that nothing goes wrong.
 
 The primary function of this application at the moment is that it can receive advertisements (the `Get Advertisements` button. Make sure location permissions is enabled because the app needs it. The reason for this is elaborated in the `Ming's findings` document). Opening the Logcat tab at the bottom of your screen will show you a whole lot of debug messages. Advertisements are logged here.
+
+Note: This application will error out on phones running an older version of android. This is likely due to to the bluetooth API requiring the ACCESS_FINE_LOCATION permission in recent android versions, which was not supported earlier. (I believe earlier versions require the ACCESS_COURSE_LOCATION permission, and even older versions don't need location permission at all. Will have to programatically detect the android version to avoid this issue)
