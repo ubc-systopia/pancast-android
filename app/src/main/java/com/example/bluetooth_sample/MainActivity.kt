@@ -55,7 +55,7 @@ class MainActivity : AppCompatActivity() {
 //                Log.d("ADV_LOG", result.toString())
 //            }
             if (result.isLegacy && !result.isConnectable && result.scanRecord?.advertiseFlags == 26) {
-                Log.d("AYE", result.scanRecord!!.serviceUuids[0].toString())
+                Log.d("BLE_LOG", result.scanRecord!!.serviceUuids[0].toString())
             }
 //            }
         }
@@ -264,6 +264,10 @@ class MainActivity : AppCompatActivity() {
             }
         }
         super.onActivityResult(requestCode, resultCode, data)
+    }
+
+    private fun storeData() {
+
     }
 
     //toast message function
