@@ -6,7 +6,7 @@ import androidx.room.Room
 import androidx.room.RoomDatabase
 
 // partly based off of Stevdza-San's ROOM database tutorial on YT
-@Database(entities = [Entry::class], version = 1)
+@Database(entities = [Entry::class], version = 1, exportSchema = false)
 abstract class EntryDatabase(): RoomDatabase() {
     abstract fun entryDao(): EntryDao
 
