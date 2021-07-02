@@ -1,6 +1,7 @@
 package com.example.bluetooth_sample.data
 
 import android.app.Application
+import android.util.Log
 import androidx.lifecycle.AndroidViewModel
 import androidx.lifecycle.viewModelScope
 import kotlinx.coroutines.Dispatchers
@@ -28,7 +29,7 @@ class EntryViewModel(application: Application): AndroidViewModel(application) {
 
     fun getAllEntries() {
         viewModelScope.launch(Dispatchers.IO) {
-            repository.getEntries()
+            Log.d("DATA", repository.getEntries().toString())
         }
     }
 }

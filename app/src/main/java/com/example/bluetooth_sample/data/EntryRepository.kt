@@ -1,18 +1,21 @@
 package com.example.bluetooth_sample.data
 
+import com.example.bluetooth_sample.getMinutesSinceLinuxEpoch
+
 class EntryRepository(private val entryDao: EntryDao) {
 
-    suspend fun addEntry(entry: Entry) {
+    fun addEntry(entry: Entry) {
         entryDao.insert(entry)
     }
 
-    suspend fun deleteEntries() {
-        val currTime: Int = 0
+    fun deleteEntries() {
+        val currTime: Long = 0
         entryDao.delete(currTime)
     }
 
-    suspend fun getEntries() {
-        val currTime: Int = 0
-        entryDao.getAll(currTime)
+    fun getEntries(): List<Entry> {
+        val currTime: Long = 0
+        val entries = entryDao.getAll(currTime)
+        return entries
     }
 }

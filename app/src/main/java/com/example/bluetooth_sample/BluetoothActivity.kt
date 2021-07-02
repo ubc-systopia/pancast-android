@@ -16,18 +16,17 @@ import android.widget.TextView
 import android.widget.Toast
 import androidx.annotation.RequiresApi
 import androidx.lifecycle.ViewModelProvider
-import com.blogspot.atifsoftwares.bluetoothexample.R
 import com.example.bluetooth_sample.data.Entry
 import com.example.bluetooth_sample.data.EntryViewModel
-import java.nio.ByteBuffer
-import java.nio.ByteOrder
+import com.example.bluetooth_sample.utilities.*
+import com.pancast.dongle.R
 import java.nio.charset.Charset
 import java.util.*
 
 class BluetoothActivity : AppCompatActivity() {
     val ENCOUNTER_TIME_TRESHOLD: Long = 5
     // initialize cache
-    private var mEphemeralIDCache: MutableMap<ByteArray, Long> = mutableMapOf()
+    private var mEphemeralIDCache: MutableMap<String, Long> = mutableMapOf()
     private lateinit var mEntryViewModel: EntryViewModel
 
     private var mStatusBlueTv: TextView? = null
@@ -39,6 +38,8 @@ class BluetoothActivity : AppCompatActivity() {
     private var mLogAdvertisementBtn: Button? = null
     private var mEnableGPSBtn: Button? = null
     private var mDisableGPSBtn: Button? = null
+    private var mDumpDatabaseBtn: Button? = null
+    private var mInsertDataBtn: Button? = null
     private var mBlueAdapter: BluetoothAdapter? = null
     private var mAdvertiser: BluetoothLeAdvertiser? = null
     private var mBluetoothLeScanner: BluetoothLeScanner? = null
@@ -51,22 +52,18 @@ class BluetoothActivity : AppCompatActivity() {
         override fun onScanResult(callbackType: Int, result: ScanResult?) {
             super.onScanResult(callbackType, result)
             if (result == null || result.scanRecord == null) return
-            if (result.scanRecord!!.serviceUuids != null) {
-                val uuid: ParcelUuid = result.scanRecord!!.serviceUuids[0]
-                val pancastUUID: ParcelUuid = ParcelUuid.fromString("00002222-0000-1000-8000-00805f9b34fb")
-                if (uuid == pancastUUID) { // need to replace with 2222 for testing...
-                    Log.d("TELEMETRY", "Encounter received")
-                    showToast("Received broadcast")
-                    val payload = result.scanRecord!!.bytes
-                    if (payload.size != 31) {
-                        Log.d("TELEMETRY", "Bad payload size")
-                    } else {
-                        val payloadWithoutLength = payload.copyOfRange(1, 31)
-                        val rssi = result.rssi.toString()
-                        Log.d("TELEMETRY", "Signal strength: $rssi")
-//                        logEncounter(payloadWithoutLength)
-                    }
-                }
+            val data = result.scanRecord!!.bytes
+            if (data.size < 30) {
+                // data is too small
+                return
+            }
+            val truncatedData = data.copyOfRange(0, 30)
+            if (isPancastData(truncatedData)) {
+                val rearrangedPayload = rearrangeData(truncatedData)
+//                Log.d("TELEMETRY", "Encounter received")
+//                val rssi = result.rssi.toString()
+//                Log.d("TELEMETRY", "Signal strength: $rssi")
+                logEncounter(rearrangedPayload)
             }
         }
 
@@ -85,7 +82,6 @@ class BluetoothActivity : AppCompatActivity() {
     @RequiresApi(Build.VERSION_CODES.LOLLIPOP)
     override fun onCreate(savedInstanceState: Bundle?) {
         Log.d("STARTUP", "BluetoothActivity")
-
         mEntryViewModel = ViewModelProvider(this).get(EntryViewModel::class.java)
 
         super.onCreate(savedInstanceState)
@@ -99,6 +95,8 @@ class BluetoothActivity : AppCompatActivity() {
         mLogAdvertisementBtn = findViewById(R.id.logAdvertisementBtn)
         mEnableGPSBtn = findViewById(R.id.enableGPSBtn)
         mDisableGPSBtn = findViewById(R.id.disableGPSBtn)
+        mDumpDatabaseBtn = findViewById(R.id.dumpDatabaseBtn)
+        mInsertDataBtn = findViewById(R.id.insertDataBtn)
 
         mBlueAdapter = BluetoothAdapter.getDefaultAdapter()
 
@@ -152,6 +150,20 @@ class BluetoothActivity : AppCompatActivity() {
 
         mDisableGPSBtn?.setOnClickListener {
             showToast("disabling GPS...")
+        }
+
+        mDumpDatabaseBtn?.setOnClickListener {
+            mEntryViewModel.getAllEntries()
+        }
+
+        mInsertDataBtn?.setOnClickListener{
+            val ephID = "0102030405060708090a0b0c0d"
+            val beaconID = 1
+            val locationID: Long = 1
+            val beaconTime = 1
+            val dongleTime = 1
+            val entry = Entry(ephID, beaconID, locationID, beaconTime, dongleTime)
+            mEntryViewModel.addEntry(entry)
         }
 
     }
@@ -249,59 +261,20 @@ class BluetoothActivity : AppCompatActivity() {
 
     fun logEncounter(input: ByteArray) {
         // need some form of expiry mechanism for old ephemeral IDs within the map. cron job to remove
-        // old entries?
+        // old entries from the cache?
         val decoded: DecodedData = decodeData(input)
-        if (!mEphemeralIDCache.containsKey(decoded.ephemeralID)) {
-            mEphemeralIDCache[decoded.ephemeralID] = getMinutesSinceLinuxEpoch()
+        if (!mEphemeralIDCache.containsKey(decoded.ephemeralID.toHexString())) {
+            mEphemeralIDCache[decoded.ephemeralID.toHexString()] = getMinutesSinceLinuxEpoch()
         } else {
-            val oldTime = mEphemeralIDCache[decoded.ephemeralID]
+            val oldTime = mEphemeralIDCache[decoded.ephemeralID.toHexString()]
             val newTime = getMinutesSinceLinuxEpoch()
             if (newTime - oldTime!! >= ENCOUNTER_TIME_TRESHOLD) {
-                val entry = Entry(decoded.ephemeralID, decoded.beaconID, decoded.locationID, decoded.beaconTime, oldTime.toInt())
+                Log.d("DATA", "Entry added")
+                val entry = Entry(decoded.ephemeralID.toHexString(), decoded.beaconID, decoded.locationID, decoded.beaconTime, oldTime.toInt())
                 mEntryViewModel.addEntry(entry)
-                mEphemeralIDCache[decoded.ephemeralID] = newTime
+                mEphemeralIDCache[decoded.ephemeralID.toHexString()] = newTime
             }
         }
-    }
-    // should deserve its own class file
-    data class DecodedData
-    constructor(val beaconTime: Int, val beaconID: Int, val locationID: Long, val ephemeralID: ByteArray) {
-        override fun equals(other: Any?): Boolean {
-            if (this === other) return true
-            if (javaClass != other?.javaClass) return false
-
-            other as DecodedData
-
-            if (beaconTime != other.beaconTime) return false
-            if (beaconID != other.beaconID) return false
-            if (locationID != other.locationID) return false
-            if (!ephemeralID.contentEquals(other.ephemeralID)) return false
-
-            return true
-        }
-
-        @ExperimentalUnsignedTypes
-        override fun hashCode(): Int {
-            var result = beaconTime.hashCode()
-            result = 31 * result + beaconID.hashCode()
-            result = 31 * result + locationID.hashCode()
-            result = 31 * result + ephemeralID.contentHashCode()
-            return result
-        }
-    }
-
-    private fun decodeData(d: ByteArray): DecodedData {
-        if (d.size != 30) {
-            throw IllegalArgumentException("size is not correct")
-        }
-//        val beaconTime = d.copyOfRange(0, 4).getUInt32()
-        val beaconTime = ByteBuffer.wrap(d.copyOfRange(0, 4)).order(ByteOrder.LITTLE_ENDIAN).int
-        val beaconID = ByteBuffer.wrap(d.copyOfRange(4, 8)).order(ByteOrder.LITTLE_ENDIAN).int
-        val locationID = ByteBuffer.wrap(d.copyOfRange(8, 16)).order(ByteOrder.LITTLE_ENDIAN).long
-//        val beaconID = d.copyOfRange(4, 8).getUInt32()
-//        val locationID = d.copyOfRange(8, 16).getUInt64()
-        val ephemeralID: ByteArray = d.copyOfRange(16, 30)
-        return DecodedData(beaconTime, beaconID, locationID, ephemeralID)
     }
 
     //toast message function
