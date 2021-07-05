@@ -3,11 +3,36 @@
     xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools"
     android:id="@+id/app_nav"
-    app:startDestination="@id/storageFragment">
+    app:startDestination="@id/homeFragment">
 
     <fragment
         android:id="@+id/storageFragment"
-        android:name="com.blogspot.atifsoftwares.bluetoothexample.StorageFragment"
-        android:label="fragment_storage"
-        tools:layout="@layout/fragment_storage" />
+        android:name="com.pancast.dongle.fragments.StorageFragment"
+        android:label="Encounter History"
+        tools:layout="@layout/fragment_storage" >
+        <action
+            android:id="@+id/action_storageFragment_to_homeFragment"
+            app:destination="@id/homeFragment" />
+        <action
+            android:id="@+id/action_storageFragment_to_uploadFragment"
+            app:destination="@id/uploadFragment" />
+    </fragment>
+    <fragment
+        android:id="@+id/homeFragment"
+        android:name="com.pancast.dongle.fragments.home.HomeFragment"
+        android:label="Home"
+        tools:layout="@layout/fragment_home" >
+        <action
+            android:id="@+id/action_homeFragment_to_storageFragment"
+            app:destination="@id/storageFragment" />
+    </fragment>
+    <fragment
+        android:id="@+id/uploadFragment"
+        android:name="com.pancast.dongle.fragments.UploadFragment"
+        android:label="Upload Encounter History"
+        tools:layout="@layout/fragment_upload" >
+        <action
+            android:id="@+id/action_uploadFragment_to_storageFragment"
+            app:destination="@id/storageFragment" />
+    </fragment>
 </navigation>
