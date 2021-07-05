@@ -4,7 +4,7 @@ import android.bluetooth.BluetoothAdapter
 import android.bluetooth.le.*
 import android.os.Build
 import androidx.annotation.RequiresApi
-import com.pancast.dongle.utilities.*
+import java.lang.Exception
 
 class Scanner(handler: EntryHandler) {
     private val mBlueAdapter: BluetoothAdapter = BluetoothAdapter.getDefaultAdapter()
@@ -19,43 +19,24 @@ class Scanner(handler: EntryHandler) {
                 .build()
             mBluetoothLeScanner.startScan(filters, settings, mScanCallback)
         } else {
-            // need to notify user that bluetooth needs to be enabled
+            throw Exception("Bluetooth is not enabled")
         }
     }
 
     fun stopScan() {
-
+        if (mBlueAdapter.isDiscovering) {
+            mBluetoothLeScanner.stopScan(mScanCallback)
+        } else {
+            throw Exception("Scan is not ongoing")
+        }
     }
 
-    // want to be able to start scan
-    // want to be able to stop scan
-    // want to decode data
-    // want to be able to store scanned data
-
-
-    val mScanCallback: ScanCallback = @RequiresApi(Build.VERSION_CODES.LOLLIPOP)
-    object : ScanCallback() {
-        @RequiresApi(Build.VERSION_CODES.Q)
+    private val mScanCallback: ScanCallback = object: ScanCallback() {
         override fun onScanResult(callbackType: Int, result: ScanResult?) {
             super.onScanResult(callbackType, result)
             if (result == null || result.scanRecord == null) return
             val data = result.scanRecord!!.bytes
-            if (data.size < 30) {
-                // data is too small
-                return
-            }
-            val truncatedData = data.copyOfRange(0, 30)
-            if (isPancastData(truncatedData)) {
-                val rearrangedPayload = rearrangeData(truncatedData)
-//                Log.d("TELEMETRY", "Encounter received")
-//                val rssi = result.rssi.toString()
-//                Log.d("TELEMETRY", "Signal strength: $rssi")
-                handler.logEncounter(rearrangedPayload)
-            }
+            handler.handlePayload(data)
         }
     }
-
-
-
-
 }

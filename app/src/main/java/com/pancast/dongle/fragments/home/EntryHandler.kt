@@ -13,10 +13,25 @@ import java.nio.ByteBuffer
 import java.nio.ByteOrder
 
 class EntryHandler(homeFragment: HomeFragment) {
-    val ephemeralIDCache: MutableMap<String, Long> = mutableMapOf()
-    val mEntryViewModel: EntryViewModel = ViewModelProvider(homeFragment).get(EntryViewModel::class.java)
+    private val ephemeralIDCache: MutableMap<String, Long> = mutableMapOf()
+    private val mEntryViewModel: EntryViewModel = ViewModelProvider(homeFragment).get(EntryViewModel::class.java)
 
-    fun logEncounter(input: ByteArray) {
+    fun handlePayload(input: ByteArray) {
+        if (input.size < 30) {
+            // data is too small
+            return
+        }
+        val truncatedData = input.copyOfRange(0, 30)
+        if (isPancastData(truncatedData)) {
+            val rearrangedPayload = rearrangeData(truncatedData)
+//                Log.d("TELEMETRY", "Encounter received")
+//                val rssi = result.rssi.toString()
+//                Log.d("TELEMETRY", "Signal strength: $rssi")
+            logEncounter(rearrangedPayload)
+        }
+    }
+
+    private fun logEncounter(input: ByteArray) {
         // need some form of expiry mechanism for old ephemeral IDs within the map. cron job to remove
         // old entries from the cache?
         val decoded: DecodedData = decodeData(input)
@@ -25,7 +40,7 @@ class EntryHandler(homeFragment: HomeFragment) {
         } else {
             val oldTime = ephemeralIDCache[decoded.ephemeralID.toHexString()]
             val newTime = getMinutesSinceLinuxEpoch()
-            if (newTime - oldTime!! >= Constants.ENCOUNTER_TIME_TRESHOLD) {
+            if (newTime - oldTime!! >= Constants.ENCOUNTER_TIME_THRESHOLD) {
                 Log.d("DATA", "Entry added")
                 val entry = Entry(decoded.ephemeralID.toHexString(), decoded.beaconID, decoded.locationID, decoded.beaconTime, oldTime.toInt())
                 mEntryViewModel.addEntry(entry)

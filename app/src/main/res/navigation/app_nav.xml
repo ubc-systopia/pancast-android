@@ -7,7 +7,7 @@
 
     <fragment
         android:id="@+id/storageFragment"
-        android:name="com.pancast.dongle.fragments.StorageFragment"
+        android:name="com.pancast.dongle.fragments.storage.StorageFragment"
         android:label="Encounter History"
         tools:layout="@layout/fragment_storage" >
         <action
@@ -28,7 +28,7 @@
     </fragment>
     <fragment
         android:id="@+id/uploadFragment"
-        android:name="com.pancast.dongle.fragments.UploadFragment"
+        android:name="com.pancast.dongle.fragments.upload.UploadFragment"
         android:label="Upload Encounter History"
         tools:layout="@layout/fragment_upload" >
         <action

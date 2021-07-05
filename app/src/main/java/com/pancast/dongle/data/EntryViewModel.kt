@@ -9,7 +9,7 @@ import kotlinx.coroutines.launch
 
 class EntryViewModel(application: Application): AndroidViewModel(application) {
     private val repository: EntryRepository
-    private val entries: LiveData<List<Entry>>
+    val entries: LiveData<List<Entry>>
 
     init {
         val entryDao = EntryDatabase.getDatabase(application).entryDao()

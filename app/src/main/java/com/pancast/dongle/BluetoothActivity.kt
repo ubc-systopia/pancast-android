@@ -1,6 +1,5 @@
 package com.pancast.dongle
 
-import android.Manifest
 import android.annotation.SuppressLint
 import android.bluetooth.BluetoothAdapter
 import android.bluetooth.le.*
@@ -18,7 +17,7 @@ import androidx.annotation.RequiresApi
 import androidx.lifecycle.ViewModelProvider
 import com.pancast.dongle.data.Entry
 import com.pancast.dongle.data.EntryViewModel
-import com.pancast.dongle.utilities.Constants.ENCOUNTER_TIME_TRESHOLD
+import com.pancast.dongle.utilities.Constants.ENCOUNTER_TIME_THRESHOLD
 import com.pancast.dongle.utilities.*
 import com.pancast.dongle.utilities.Constants.LOCATION_FINE_PERM
 import java.nio.charset.Charset
@@ -46,39 +45,6 @@ class BluetoothActivity : AppCompatActivity() {
     @RequiresApi(Build.VERSION_CODES.LOLLIPOP)
     @SuppressLint("SetTextI18n")
 
-    val mScanCallback: ScanCallback = object : ScanCallback() {
-        @RequiresApi(Build.VERSION_CODES.Q)
-        override fun onScanResult(callbackType: Int, result: ScanResult?) {
-            super.onScanResult(callbackType, result)
-            if (result == null || result.scanRecord == null) return
-            val data = result.scanRecord!!.bytes
-            if (data.size < 30) {
-                // data is too small
-                return
-            }
-            val truncatedData = data.copyOfRange(0, 30)
-            if (isPancastData(truncatedData)) {
-                val rearrangedPayload = rearrangeData(truncatedData)
-//                Log.d("TELEMETRY", "Encounter received")
-//                val rssi = result.rssi.toString()
-//                Log.d("TELEMETRY", "Signal strength: $rssi")
-                logEncounter(rearrangedPayload)
-            }
-        }
-
-        override fun onBatchScanResults(results: List<ScanResult?>?) {
-            showToast("onBatchScanResults")
-            super.onBatchScanResults(results)
-        }
-
-        override fun onScanFailed(errorCode: Int) {
-            showToast("onScanFailed")
-            Log.e("BLE", "Discovery onScanFailed: $errorCode")
-            super.onScanFailed(errorCode)
-        }
-    }
-
-    @RequiresApi(Build.VERSION_CODES.LOLLIPOP)
     override fun onCreate(savedInstanceState: Bundle?) {
         Log.d("STARTUP", "BluetoothActivity")
         mEntryViewModel = ViewModelProvider(this).get(EntryViewModel::class.java)
@@ -132,11 +98,6 @@ class BluetoothActivity : AppCompatActivity() {
         // start broadcasting advertisements
         mAdvertisementBtn?.setOnClickListener{
             handleBroadcastingAdvertisements()
-        }
-
-        // start listening for advertisements
-        mLogAdvertisementBtn?.setOnClickListener{
-            handleScanningForAdvertisements()
         }
 
         // enable GPS
@@ -225,21 +186,6 @@ class BluetoothActivity : AppCompatActivity() {
         }
     }
 
-    @RequiresApi(Build.VERSION_CODES.LOLLIPOP)
-    fun handleScanningForAdvertisements() {
-        if (mBlueAdapter?.isEnabled == true) {
-            showToast("Getting advertisements...")
-//            val filter: ScanFilter = ScanFilter.Builder().setServiceUuid("0xFD6F").build()
-            val filters: List<ScanFilter> = listOf(ScanFilter.Builder().build())
-            val settings = ScanSettings.Builder()
-                .setScanMode(ScanSettings.SCAN_MODE_LOW_LATENCY)
-                .build()
-            mBluetoothLeScanner?.startScan(filters, settings, mScanCallback)
-        } else {
-            showToast("Turn on bluetooth to receive advertisements")
-        }
-    }
-
     override fun onActivityResult(requestCode: Int, resultCode: Int, data: Intent?) {
         when (requestCode) {
             REQUEST_ENABLE_BT -> if (resultCode == RESULT_OK) {
@@ -252,24 +198,6 @@ class BluetoothActivity : AppCompatActivity() {
             }
         }
         super.onActivityResult(requestCode, resultCode, data)
-    }
-
-    fun logEncounter(input: ByteArray) {
-        // need some form of expiry mechanism for old ephemeral IDs within the map. cron job to remove
-        // old entries from the cache?
-        val decoded: DecodedData = decodeData(input)
-        if (!mEphemeralIDCache.containsKey(decoded.ephemeralID.toHexString())) {
-            mEphemeralIDCache[decoded.ephemeralID.toHexString()] = getMinutesSinceLinuxEpoch()
-        } else {
-            val oldTime = mEphemeralIDCache[decoded.ephemeralID.toHexString()]
-            val newTime = getMinutesSinceLinuxEpoch()
-            if (newTime - oldTime!! >= ENCOUNTER_TIME_TRESHOLD) {
-                Log.d("DATA", "Entry added")
-                val entry = Entry(decoded.ephemeralID.toHexString(), decoded.beaconID, decoded.locationID, decoded.beaconTime, oldTime.toInt())
-                mEntryViewModel.addEntry(entry)
-                mEphemeralIDCache[decoded.ephemeralID.toHexString()] = newTime
-            }
-        }
     }
 
     //toast message function

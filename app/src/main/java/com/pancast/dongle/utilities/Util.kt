@@ -1,15 +1,22 @@
 package com.pancast.dongle.utilities
 
-import java.nio.ByteBuffer
-import java.nio.ByteOrder
+import com.pancast.dongle.utilities.Constants.MILLISECONDS_IN_SECOND
+import com.pancast.dongle.utilities.Constants.SECONDS_IN_MINUTE
+import java.text.SimpleDateFormat
+import java.util.*
 
 val MaxBroadcastSize = 30
 
 fun getMinutesSinceLinuxEpoch(): Long {
-    val millisecondsInSecond = 1000
-    val secondsInMinute = 60
-    val currentTime: Long = System.currentTimeMillis() / (millisecondsInSecond * secondsInMinute)
+    val currentTime: Long = System.currentTimeMillis() / (MILLISECONDS_IN_SECOND * SECONDS_IN_MINUTE)
     return currentTime
+}
+
+fun minutesIntoTime(minutes: Int): String {
+    val millisecondsSinceEpoch = minutes.toLong() * MILLISECONDS_IN_SECOND * SECONDS_IN_MINUTE
+    val format = SimpleDateFormat("yyyy-MM-dd, hh:mm", Locale.CANADA)
+    val date = Date(millisecondsSinceEpoch)
+    return format.format(date)
 }
 
 fun byteArrayOfInts(vararg ints: Int) = ByteArray(ints.size) { pos -> ints[pos].toByte() }
