@@ -1,8 +1,7 @@
 package com.pancast.dongle
 
-import com.pancast.dongle.data.Entry
+import com.pancast.dongle.fragments.home.decodeData
 import com.pancast.dongle.utilities.byteArrayOfInts
-import com.pancast.dongle.utilities.decodeData
 import com.pancast.dongle.utilities.getMinutesSinceLinuxEpoch
 import org.junit.Test
 
@@ -35,15 +34,5 @@ class UtilitiesTest {
         assertEquals(1, output.beaconID)
         assertEquals(1, output.locationID)
         assertEquals(byteArrayOfInts(0x01,0x02,0x03,0x04,0x05,0x06,0x07,0x08,0x09,0x0A,0x0B,0x0C,0x0D,0x0E).toHexString(), output.ephemeralID.toHexString())
-    }
-
-    @Test
-    fun test_insert_entry() {
-        val ephID = byteArrayOfInts(0x01,0x02,0x03,0x04,0x05,0x06,0x07,0x08,0x09,0x0A,0x0B,0x0C,0x0D,0x0E)
-        val beaconID = 1
-        val locationID: Long = 1
-        val beaconTime = 1
-        val dongleTime = 1
-        val entry = Entry(ephID.toHexString(), beaconID, locationID, beaconTime, dongleTime)
     }
 }

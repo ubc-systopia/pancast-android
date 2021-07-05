@@ -23,10 +23,8 @@ import com.pancast.dongle.cuckoo.CuckooFilter
 import com.pancast.dongle.data.EntryViewModel
 import com.pancast.dongle.decodeHex
 import com.pancast.dongle.requests.RequestsHandler
-import com.pancast.dongle.utilities.Constants.LOCATION_FINE_PERM
+import com.pancast.dongle.toHexString
 import com.pancast.dongle.utilities.showAlertDialog
-import java.lang.Error
-import java.util.jar.Manifest
 import kotlin.concurrent.thread
 
 class HomeFragment : Fragment() {
@@ -67,7 +65,8 @@ class HomeFragment : Fragment() {
                 permissionHandler()
                 scanner.startScan()
             } catch (e: Exception) {
-                showAlertDialog(requireContext(), "Error", "Scan could not be started")
+                val msg = e.localizedMessage!!
+                showAlertDialog(requireContext(), "Error", msg)
             }
         }
 
@@ -76,30 +75,55 @@ class HomeFragment : Fragment() {
             try {
                 scanner.stopScan()
             } catch (e: Exception) {
-                showAlertDialog(requireContext(), "Error", "Scan could not be stopped")
+                val msg = e.localizedMessage!!
+                showAlertDialog(requireContext(), "Error", msg)
             }
         }
 
         val mCheckExposureBtn: Button = view.findViewById(R.id.checkExposureBtn)
         mCheckExposureBtn.setOnClickListener {
             thread(start = true) {
-                val riskBroadcast = RequestsHandler().downloadRiskBroadcast()
-                if (riskBroadcast != null) {
-                    val cf = CuckooFilter(riskBroadcast)
-                    val entries = mEntryViewModel.repository.getAllEntries()
-                    for (entry in entries) {
-                        val result = cf.lookupItem(entry.ephemeralID.decodeHex())
-                        if (result) {
-                            mHandler.post {
-                                showAlertDialog(
-                                    requireContext(),
-                                    "Exposure",
-                                    "You may have been exposed"
-                                )
+                try {
+                    val riskBroadcast = RequestsHandler().downloadRiskBroadcast()
+                    if (riskBroadcast != null) {
+                        val cf = CuckooFilter(riskBroadcast)
+                        val entries = mEntryViewModel.repository.getAllEntries()
+                        for (entry in entries) {
+                            val entryEphID = entry.ephemeralID + "00" // because current ephIDs are 14 bytes, append extra null byte
+                            val result = cf.lookupItem(entryEphID.decodeHex())
+                            if (result) {
+                                val count = mEntryViewModel.repository.getNumEntries(entry.ephemeralID)
+                                mHandler.post {
+                                    showAlertDialog(
+                                        requireContext(),
+                                        "Exposure: $entryEphID",
+                                        "You may have been exposed. You have encountered an infected beacon $count times."
+                                    )
+                                }
                             }
                         }
                     }
+                } catch (e: Exception) {
+                    if (e.localizedMessage != null) {
+                        val msg = e.localizedMessage!!
+                        mHandler.post {
+                            showAlertDialog(
+                                requireContext(),
+                                "Error",
+                                msg
+                            )
+                        }
+                    } else {
+                        mHandler.post {
+                            showAlertDialog(
+                                requireContext(),
+                                "Error",
+                                "Unknown exception"
+                            )
+                        }
+                    }
                 }
+
             }
 
         }

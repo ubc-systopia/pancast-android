@@ -11,11 +11,17 @@ class Scanner(handler: EntryHandler) {
     private val mBlueAdapter: BluetoothAdapter = BluetoothAdapter.getDefaultAdapter()
     private val mBluetoothLeScanner: BluetoothLeScanner = BluetoothAdapter.getDefaultAdapter().bluetoothLeScanner
     private val mScanCallback: ScanCallback = object: ScanCallback() {
+        @RequiresApi(Build.VERSION_CODES.O)
         override fun onScanResult(callbackType: Int, result: ScanResult?) {
             super.onScanResult(callbackType, result)
             if (result == null || result.scanRecord == null) return
             val data = result.scanRecord!!.bytes
-            handler.handlePayload(data)
+            if (handler.isPancastPayload(data)) {
+                Log.d("TELEMETRY", "RSSI: " + result.rssi.toString())
+                Log.d("TELEMETRY", "TxPower: " + result.txPower.toString())
+                handler.handlePayload(data)
+            }
+            // maybe add more handlers for different types of packets
         }
     }
 
@@ -23,7 +29,7 @@ class Scanner(handler: EntryHandler) {
         if (mBlueAdapter.isEnabled) {
             val filters: List<ScanFilter> = listOf(ScanFilter.Builder().build())
             val settings = ScanSettings.Builder()
-                .setScanMode(ScanSettings.SCAN_MODE_LOW_LATENCY)
+                .setScanMode(ScanSettings.SCAN_MODE_LOW_POWER)
                 .build()
             mBluetoothLeScanner.startScan(filters, settings, mScanCallback)
         } else {
@@ -32,11 +38,7 @@ class Scanner(handler: EntryHandler) {
     }
 
     fun stopScan() {
-        if (mBlueAdapter.isDiscovering) {
-            mBluetoothLeScanner.stopScan(mScanCallback)
-        } else {
-            throw Exception("Scan is not ongoing")
-        }
+        mBluetoothLeScanner.stopScan(mScanCallback)
     }
 
 

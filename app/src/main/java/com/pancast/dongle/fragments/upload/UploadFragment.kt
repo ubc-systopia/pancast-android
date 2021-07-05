@@ -1,5 +1,6 @@
 package com.pancast.dongle.fragments.upload
 
+import android.os.Build
 import android.os.Bundle
 import android.os.Handler
 import androidx.fragment.app.Fragment
@@ -7,6 +8,7 @@ import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import android.widget.Button
+import androidx.annotation.RequiresApi
 import androidx.lifecycle.ViewModelProvider
 import com.pancast.dongle.R
 import com.pancast.dongle.data.EntryViewModel
@@ -20,6 +22,7 @@ class UploadFragment : Fragment() {
 
     private lateinit var mEntryViewModel: EntryViewModel
 
+    @RequiresApi(Build.VERSION_CODES.O)
     override fun onCreateView(
         inflater: LayoutInflater, container: ViewGroup?,
         savedInstanceState: Bundle?
@@ -47,7 +50,7 @@ class UploadFragment : Fragment() {
                         showAlertDialog(
                             requireContext(),
                             "Failure!",
-                            "Request was not successfully sent"
+                            e.localizedMessage!!
                         )
                     }
                 }

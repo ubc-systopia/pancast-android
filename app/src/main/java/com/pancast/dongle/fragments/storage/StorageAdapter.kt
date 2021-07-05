@@ -27,6 +27,7 @@ class StorageAdapter: RecyclerView.Adapter<StorageAdapter.EntryViewHolder>() {
         holder.itemView.findViewById<TextView>(R.id.item_eph_id).text = currentItem.ephemeralID
         holder.itemView.findViewById<TextView>(R.id.item_beacon_id).text = currentItem.beaconID.toString()
         holder.itemView.findViewById<TextView>(R.id.item_date).text = minutesIntoTime(currentItem.dongleTime)
+        holder.itemView.findViewById<TextView>(R.id.item_location_id).text = currentItem.locationID.toString()
     }
 
     fun changeState(entries: List<Entry>) {

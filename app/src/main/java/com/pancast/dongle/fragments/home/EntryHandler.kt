@@ -17,17 +17,17 @@ class EntryHandler(homeFragment: HomeFragment) {
     private val mEntryViewModel: EntryViewModel = ViewModelProvider(homeFragment).get(EntryViewModel::class.java)
 
     fun handlePayload(input: ByteArray) {
-        if (input.size < 30) {
-            // data is too small
-            return
-        }
         val truncatedData = input.copyOfRange(0, 30)
-        if (isPancastData(truncatedData)) {
-            val rearrangedPayload = rearrangeData(truncatedData)
-//                Log.d("TELEMETRY", "Encounter received")
-//                val rssi = result.rssi.toString()
-//                Log.d("TELEMETRY", "Signal strength: $rssi")
-            logEncounter(rearrangedPayload)
+        val rearrangedPayload = rearrangeData(truncatedData)
+        logEncounter(rearrangedPayload)
+    }
+
+    fun isPancastPayload(payload: ByteArray): Boolean {
+        return if (payload.size < 30) {
+            false
+        } else {
+            val truncatedData = payload.copyOfRange(0, 30)
+            isPancastData(truncatedData)
         }
     }
 

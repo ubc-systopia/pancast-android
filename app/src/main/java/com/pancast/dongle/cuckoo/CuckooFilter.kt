@@ -1,5 +1,6 @@
 package com.pancast.dongle.cuckoo
 
+import android.util.Log
 import com.pancast.dongle.cuckoo.hash.MetroHash64
 import com.pancast.dongle.fingerprintToBytes
 import java.nio.ByteBuffer
@@ -20,17 +21,6 @@ class CuckooFilter(private val cf: ByteArray) {
         val hash = MetroHash64(SEED).apply(ByteBuffer.wrap(item)).get().toULong()
         val fingerprint = getFingerprint(hash)
         val indices = getIndices(hash, fingerprint)
-
-//        for (i in 0 until getNumBuckets().toInt()) {
-//            for (j in 0 until ENTRIES_PER_BUCKET.toInt()) {
-//                val place = getByteAndBitOffset(i.toULong(), j)
-//                val result = readNumBitsFromByteAndBitOffset(place.first, place.second)
-//                if (fingerprint == result) {
-//                    val debug = 1 // test breakpoint
-//                }
-//            }
-//        }
-
         return matchIndex(indices.first, fingerprint) or matchIndex(indices.second, fingerprint)
     }
 

@@ -1,5 +1,8 @@
 package com.pancast.dongle.requests
 
+import android.os.Build
+import android.util.Log
+import androidx.annotation.RequiresApi
 import com.pancast.dongle.data.Entry
 import com.pancast.dongle.decodeHex
 import com.pancast.dongle.utilities.Constants
@@ -8,10 +11,12 @@ import okhttp3.*
 import okhttp3.MediaType.Companion.toMediaType
 import okhttp3.RequestBody.Companion.toRequestBody
 import java.security.SecureRandom
+import java.util.*
 import javax.net.ssl.SSLContext
 import javax.net.ssl.TrustManager
 
 class RequestsHandler {
+    @RequiresApi(Build.VERSION_CODES.O)
     fun uploadData(data: List<Entry>, type: RequestType): String? {
         val sslContext: SSLContext = SSLContext.getInstance("TLSv1.2")
         val myTrustManagerArray: Array<TrustManager> = arrayOf(NaiveTrustManager())
@@ -56,11 +61,14 @@ class RequestsHandler {
         client.newCall(request).execute().use { response -> return response.body?.bytes() }
     }
 
+    @RequiresApi(Build.VERSION_CODES.O)
     private fun constructUploadRequestBody(data: List<Entry>, type: RequestType): String {
         val bld = StringBuilder()
         bld.append("{\"Entries\": [")
+
         for (i in data.indices) {
             val en: Entry = data[i]
+            Log.d("DEBUG", en.ephemeralID.decodeHex().size.toString())
             bld.append(
                 java.lang.String.format(
                     "{" +
@@ -69,7 +77,7 @@ class RequestsHandler {
                             "\"BeaconClock\": %s," +
                             "\"BeaconId\":    %s," +
                             "\"LocationID\":  %s" +
-                            "}", en.ephemeralID.decodeHex(), en.dongleTime, en.beaconTime, en.beaconID, en.locationID
+                            "}", Base64.getEncoder().encodeToString(en.ephemeralID.decodeHex()), en.dongleTime, en.beaconTime, en.beaconID, en.locationID
                 )
             )
             if (i < data.size - 1) {

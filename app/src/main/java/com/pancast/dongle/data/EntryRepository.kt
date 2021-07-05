@@ -14,6 +14,10 @@ class EntryRepository(private val entryDao: EntryDao) {
         return entryDao.getAllSynchronously(0)
     }
 
+    fun getNumEntries(ephID: String): Int {
+        return entryDao.getNumEntries(ephID)
+    }
+
     fun deleteEntries() {
         val currTime: Long = 0
         entryDao.delete(currTime)

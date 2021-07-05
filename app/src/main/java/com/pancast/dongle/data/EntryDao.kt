@@ -16,6 +16,9 @@ interface EntryDao {
     @Query("SELECT * FROM entry WHERE (:currTime) - dongleTime < $MINUTES_IN_WINDOW")
     fun getAllSynchronously(currTime: Long): List<Entry>
 
+    @Query("SELECT COUNT(*) FROM entry WHERE ephemeralID = :ephID")
+    fun getNumEntries(ephID: String): Int
+
     // insert new entry
     @Insert
     fun insert(entry: Entry)
