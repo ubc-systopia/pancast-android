@@ -38,4 +38,15 @@
         app:layout_constraintHorizontal_bias="0.502"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toBottomOf="@+id/startBtn" />
+
+    <Button
+        android:id="@+id/checkExposureBtn"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="48dp"
+        android:text="@string/check_exposure"
+        app:layout_constraintEnd_toEndOf="@+id/stopBtn"
+        app:layout_constraintHorizontal_bias="0.0"
+        app:layout_constraintStart_toStartOf="@+id/stopBtn"
+        app:layout_constraintTop_toBottomOf="@+id/stopBtn" />
 </androidx.constraintlayout.widget.ConstraintLayout>

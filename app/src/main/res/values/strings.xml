@@ -6,4 +6,8 @@
     <string name="view_encounter_history">View Encounter History</string>
     <string name="start_scanning">Start Scanning</string>
     <string name="stop_scanning">Stop Scanning</string>
+    <string name="check_exposure">Check Exposure</string>
+    <string name="dummy_time">2021-07-04, 18:02</string>
+    <string name="dummy_eph_id">Ephemeral ID: 0xDEADBEEFDEADBE</string>
+    <string name="dummy_location_id">Beacon ID: 22220001</string>
 </resources>

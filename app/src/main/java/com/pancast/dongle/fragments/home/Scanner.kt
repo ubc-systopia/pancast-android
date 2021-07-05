@@ -10,6 +10,14 @@ import java.lang.Exception
 class Scanner(handler: EntryHandler) {
     private val mBlueAdapter: BluetoothAdapter = BluetoothAdapter.getDefaultAdapter()
     private val mBluetoothLeScanner: BluetoothLeScanner = BluetoothAdapter.getDefaultAdapter().bluetoothLeScanner
+    private val mScanCallback: ScanCallback = object: ScanCallback() {
+        override fun onScanResult(callbackType: Int, result: ScanResult?) {
+            super.onScanResult(callbackType, result)
+            if (result == null || result.scanRecord == null) return
+            val data = result.scanRecord!!.bytes
+            handler.handlePayload(data)
+        }
+    }
 
     fun startScan() {
         if (mBlueAdapter.isEnabled) {
@@ -31,13 +39,5 @@ class Scanner(handler: EntryHandler) {
         }
     }
 
-    private val mScanCallback: ScanCallback = object: ScanCallback() {
-        override fun onScanResult(callbackType: Int, result: ScanResult?) {
-            super.onScanResult(callbackType, result)
-            if (result == null || result.scanRecord == null) return
-            val data = result.scanRecord!!.bytes
-            Log.d("DEBUG", "hit")
-            handler.handlePayload(data)
-        }
-    }
+
 }

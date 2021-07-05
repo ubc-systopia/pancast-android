@@ -1,6 +1,5 @@
-package com.pancast.dongle.fragments.upload.requests
+package com.pancast.dongle.requests
 
-import android.util.Log
 import com.pancast.dongle.data.Entry
 import com.pancast.dongle.decodeHex
 import com.pancast.dongle.utilities.Constants

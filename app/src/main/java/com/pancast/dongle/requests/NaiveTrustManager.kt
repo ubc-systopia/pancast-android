@@ -1,4 +1,4 @@
-package com.pancast.dongle.fragments.upload.requests
+package com.pancast.dongle.requests
 
 import android.annotation.SuppressLint
 import javax.net.ssl.X509TrustManager
