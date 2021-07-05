@@ -1,6 +1,8 @@
-package com.pancast.dongle.requests
+package com.pancast.dongle.fragments.upload.requests
 
+import android.util.Log
 import com.pancast.dongle.data.Entry
+import com.pancast.dongle.decodeHex
 import com.pancast.dongle.utilities.Constants
 import com.pancast.dongle.utilities.RequestType
 import okhttp3.*
@@ -29,7 +31,12 @@ class RequestsHandler {
             .url(url)
             .post(reqBody)
             .build()
-        client.newCall(request).execute().use { response -> return response.body?.string() }
+        val response = client.newCall(request).execute()
+        return if (response.body != null) {
+            response.body!!.string()
+        } else {
+            ""
+        }
     }
 
     fun downloadRiskBroadcast(): ByteArray? {
@@ -63,7 +70,7 @@ class RequestsHandler {
                             "\"BeaconClock\": %s," +
                             "\"BeaconId\":    %s," +
                             "\"LocationID\":  %s" +
-                            "}", en.ephemeralID, en.dongleTime, en.beaconTime, en.beaconID, en.locationID
+                            "}", en.ephemeralID.decodeHex(), en.dongleTime, en.beaconTime, en.beaconID, en.locationID
                 )
             )
             if (i < data.size - 1) {

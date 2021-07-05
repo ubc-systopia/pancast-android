@@ -1,10 +1,9 @@
 package com.pancast.dongle
 
-import android.content.Intent
 import android.os.*
-import android.util.Log
-import android.widget.Button
+import android.widget.Toast
 import androidx.appcompat.app.AppCompatActivity
+import androidx.navigation.Navigation
 import androidx.navigation.findNavController
 import androidx.navigation.ui.setupActionBarWithNavController
 
@@ -16,5 +15,10 @@ class MainActivity : AppCompatActivity() {
         setContentView(R.layout.activity_main)
 
         setupActionBarWithNavController(findNavController(R.id.fragmentContainerView))
+    }
+
+    override fun onSupportNavigateUp(): Boolean {
+        findNavController(R.id.fragmentContainerView).navigateUp()
+        return super.onSupportNavigateUp()
     }
 }

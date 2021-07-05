@@ -1,9 +1,7 @@
-package com.pancast.dongle.requests
+package com.pancast.dongle.fragments.upload.requests
 
 import android.annotation.SuppressLint
-import javax.net.ssl.TrustManager
 import javax.net.ssl.X509TrustManager
-import javax.security.cert.X509Certificate
 
 
 internal class NaiveTrustManager : X509TrustManager {

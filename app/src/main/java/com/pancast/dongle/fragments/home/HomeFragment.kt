@@ -1,6 +1,10 @@
 package com.pancast.dongle.fragments.home
 
 import android.os.Bundle
+import android.os.Handler
+import android.os.Looper
+import android.os.Message
+import android.util.Log
 import androidx.fragment.app.Fragment
 import android.view.LayoutInflater
 import android.view.View
@@ -12,6 +16,7 @@ import com.pancast.dongle.R
 import java.lang.Error
 
 class HomeFragment : Fragment() {
+
     override fun onCreateView(
         inflater: LayoutInflater, container: ViewGroup?,
         savedInstanceState: Bundle?
@@ -30,7 +35,7 @@ class HomeFragment : Fragment() {
             try {
                 scanner.startScan()
             } catch (e: Exception) {
-                Toast.makeText(this.context, e.toString(), Toast.LENGTH_LONG).show()
+                // handle
             }
         }
 
@@ -39,7 +44,7 @@ class HomeFragment : Fragment() {
             try {
                 scanner.stopScan()
             } catch (e: Exception) {
-                Toast.makeText(this.context, e.toString(), Toast.LENGTH_LONG).show()
+                // do handling
             }
         }
         return view

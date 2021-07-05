@@ -13,6 +13,9 @@ interface EntryDao {
     @Query("SELECT * FROM entry WHERE (:currTime) - dongleTime < $MINUTES_IN_WINDOW")
     fun getAll(currTime: Long): LiveData<List<Entry>>
 
+    @Query("SELECT * FROM entry WHERE (:currTime) - dongleTime < $MINUTES_IN_WINDOW")
+    fun getAllSynchronously(currTime: Long): List<Entry>
+
     // insert new entry
     @Insert
     fun insert(entry: Entry)

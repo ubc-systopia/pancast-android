@@ -8,7 +8,7 @@ import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 
 class EntryViewModel(application: Application): AndroidViewModel(application) {
-    private val repository: EntryRepository
+    val repository: EntryRepository
     val entries: LiveData<List<Entry>>
 
     init {

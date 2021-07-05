@@ -10,6 +10,10 @@ class EntryRepository(private val entryDao: EntryDao) {
         entryDao.insert(entry)
     }
 
+    fun getAllEntries(): List<Entry> {
+        return entryDao.getAllSynchronously(0)
+    }
+
     fun deleteEntries() {
         val currTime: Long = 0
         entryDao.delete(currTime)

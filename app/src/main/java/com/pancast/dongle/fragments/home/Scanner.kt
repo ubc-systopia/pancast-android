@@ -3,14 +3,14 @@ package com.pancast.dongle.fragments.home
 import android.bluetooth.BluetoothAdapter
 import android.bluetooth.le.*
 import android.os.Build
+import android.util.Log
 import androidx.annotation.RequiresApi
 import java.lang.Exception
 
 class Scanner(handler: EntryHandler) {
     private val mBlueAdapter: BluetoothAdapter = BluetoothAdapter.getDefaultAdapter()
-    private val mBluetoothLeScanner: BluetoothLeScanner = mBlueAdapter.bluetoothLeScanner
+    private val mBluetoothLeScanner: BluetoothLeScanner = BluetoothAdapter.getDefaultAdapter().bluetoothLeScanner
 
-    @RequiresApi(Build.VERSION_CODES.LOLLIPOP)
     fun startScan() {
         if (mBlueAdapter.isEnabled) {
             val filters: List<ScanFilter> = listOf(ScanFilter.Builder().build())
@@ -36,6 +36,7 @@ class Scanner(handler: EntryHandler) {
             super.onScanResult(callbackType, result)
             if (result == null || result.scanRecord == null) return
             val data = result.scanRecord!!.bytes
+            Log.d("DEBUG", "hit")
             handler.handlePayload(data)
         }
     }

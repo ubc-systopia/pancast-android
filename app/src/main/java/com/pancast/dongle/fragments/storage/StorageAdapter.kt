@@ -35,6 +35,6 @@ class StorageAdapter: RecyclerView.Adapter<StorageAdapter.EntryViewHolder>() {
     }
 
     override fun getItemCount(): Int {
-        TODO("Not yet implemented")
+        return entryList.size
     }
 }

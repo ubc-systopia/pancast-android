@@ -36,6 +36,7 @@ class StorageFragment : Fragment() {
 
         val adapter = StorageAdapter()
         val recyclerView = view.findViewById<RecyclerView>(R.id.recyclerView)
+        recyclerView.adapter = adapter
         recyclerView.layoutManager = LinearLayoutManager(requireContext())
 
         mEntryViewModel = ViewModelProvider(this).get(EntryViewModel::class.java)
