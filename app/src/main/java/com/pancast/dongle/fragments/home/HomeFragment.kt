@@ -1,5 +1,6 @@
 package com.pancast.dongle.fragments.home
 
+import android.content.Intent
 import android.content.pm.PackageManager
 import android.os.Bundle
 import android.os.Handler
@@ -22,6 +23,8 @@ import com.pancast.dongle.R
 import com.pancast.dongle.cuckoo.CuckooFilter
 import com.pancast.dongle.data.EntryViewModel
 import com.pancast.dongle.decodeHex
+import com.pancast.dongle.fragments.home.BleScannerService.Companion.startService
+import com.pancast.dongle.fragments.home.BleScannerService.Companion.stopService
 import com.pancast.dongle.requests.RequestsHandler
 import com.pancast.dongle.toHexString
 import com.pancast.dongle.utilities.showAlertDialog
@@ -56,14 +59,11 @@ class HomeFragment : Fragment() {
             findNavController().navigate(R.id.action_homeFragment_to_storageFragment)
         }
 
-        val handler = EntryHandler(this)
-        val scanner = Scanner(handler)
-
         val mStartBtn: Button = view.findViewById(R.id.startBtn)
         mStartBtn.setOnClickListener {
             try {
                 permissionHandler()
-                scanner.startScan()
+                startService(requireContext())
             } catch (e: Exception) {
                 val msg = e.localizedMessage!!
                 showAlertDialog(requireContext(), "Error", msg)
@@ -73,7 +73,7 @@ class HomeFragment : Fragment() {
         val mStopBtn: Button = view.findViewById(R.id.stopBtn)
         mStopBtn.setOnClickListener {
             try {
-                scanner.stopScan()
+                stopService(requireContext())
             } catch (e: Exception) {
                 val msg = e.localizedMessage!!
                 showAlertDialog(requireContext(), "Error", msg)

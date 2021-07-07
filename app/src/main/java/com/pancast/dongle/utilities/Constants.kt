@@ -7,6 +7,8 @@ object Constants {
     const val ENCOUNTER_TIME_THRESHOLD = 5
     const val MILLISECONDS_IN_SECOND = 1000
     const val SECONDS_IN_MINUTE = 60
+
+    const val SERVICE_CHANNEL_ID: String = "SCAN_ONGOING_CHANNEL"
 }
 
 enum class RequestType {

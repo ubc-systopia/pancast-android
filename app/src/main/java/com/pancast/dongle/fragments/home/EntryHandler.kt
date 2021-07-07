@@ -1,9 +1,9 @@
 package com.pancast.dongle.fragments.home
 
+import android.content.Context
 import android.util.Log
 import androidx.lifecycle.ViewModelProvider
-import com.pancast.dongle.data.Entry
-import com.pancast.dongle.data.EntryViewModel
+import com.pancast.dongle.data.*
 import com.pancast.dongle.toHexString
 import com.pancast.dongle.utilities.Constants
 import com.pancast.dongle.utilities.MaxBroadcastSize
@@ -12,9 +12,12 @@ import com.pancast.dongle.utilities.getMinutesSinceLinuxEpoch
 import java.nio.ByteBuffer
 import java.nio.ByteOrder
 
-class EntryHandler(homeFragment: HomeFragment) {
+class EntryHandler(ctx: Context) {
     private val ephemeralIDCache: MutableMap<String, Long> = mutableMapOf()
-    private val mEntryViewModel: EntryViewModel = ViewModelProvider(homeFragment).get(EntryViewModel::class.java)
+    private val mEntryDao: EntryDao = EntryDatabase.getDatabase(ctx).entryDao()
+    private val mEntryRepository = EntryRepository(mEntryDao)
+
+    private var count = 0
 
     fun handlePayload(input: ByteArray) {
         val truncatedData = input.copyOfRange(0, 30)
@@ -32,6 +35,9 @@ class EntryHandler(homeFragment: HomeFragment) {
     }
 
     private fun logEncounter(input: ByteArray) {
+        count++
+        Log.d("TELEMETRY", "Number of packets received: $count")
+        Log.d("TELEMETRY", "END")
         // need some form of expiry mechanism for old ephemeral IDs within the map. cron job to remove
         // old entries from the cache?
         val decoded: DecodedData = decodeData(input)
@@ -43,7 +49,7 @@ class EntryHandler(homeFragment: HomeFragment) {
             if (newTime - oldTime!! >= Constants.ENCOUNTER_TIME_THRESHOLD) {
                 Log.d("DATA", "Entry added")
                 val entry = Entry(decoded.ephemeralID.toHexString(), decoded.beaconID, decoded.locationID, decoded.beaconTime, oldTime.toInt())
-                mEntryViewModel.addEntry(entry)
+                mEntryRepository.addEntry(entry)
                 ephemeralIDCache[decoded.ephemeralID.toHexString()] = newTime
             }
         }
