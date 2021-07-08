@@ -37,12 +37,12 @@ class BleScannerService: Service() {
     }
 
     companion object {
-        fun startService(ctx: Context) {
+        fun startScanningService(ctx: Context) {
             val startIntent = Intent(ctx, BleScannerService::class.java)
             ContextCompat.startForegroundService(ctx, startIntent)
         }
 
-        fun stopService(ctx: Context) {
+        fun stopScanningService(ctx: Context) {
             val startIntent = Intent(ctx, BleScannerService::class.java)
             ctx.stopService(startIntent)
         }

@@ -25,6 +25,9 @@
         <action
             android:id="@+id/action_homeFragment_to_storageFragment"
             app:destination="@id/storageFragment" />
+        <action
+            android:id="@+id/action_homeFragment_to_telemetryFragment"
+            app:destination="@id/telemetryFragment" />
     </fragment>
     <fragment
         android:id="@+id/uploadFragment"
@@ -34,5 +37,14 @@
         <action
             android:id="@+id/action_uploadFragment_to_storageFragment"
             app:destination="@id/storageFragment" />
+    </fragment>
+    <fragment
+        android:id="@+id/telemetryFragment"
+        android:name="com.pancast.dongle.fragments.telemetry.TelemetryFragment"
+        android:label="fragment_telemetry"
+        tools:layout="@layout/fragment_telemetry" >
+        <action
+            android:id="@+id/action_telemetryFragment_to_homeFragment"
+            app:destination="@id/homeFragment" />
     </fragment>
 </navigation>

@@ -1,32 +1,25 @@
 package com.pancast.dongle.fragments.home
 
-import android.content.Intent
 import android.content.pm.PackageManager
 import android.os.Bundle
 import android.os.Handler
-import android.os.Looper
-import android.os.Message
-import android.util.Log
 import androidx.fragment.app.Fragment
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import android.widget.Button
-import android.widget.Toast
 import androidx.activity.result.ActivityResultLauncher
 import androidx.activity.result.contract.ActivityResultContracts
 import androidx.core.app.ActivityCompat
-import androidx.core.content.ContextCompat
 import androidx.lifecycle.ViewModelProvider
 import androidx.navigation.fragment.findNavController
 import com.pancast.dongle.R
 import com.pancast.dongle.cuckoo.CuckooFilter
 import com.pancast.dongle.data.EntryViewModel
 import com.pancast.dongle.decodeHex
-import com.pancast.dongle.fragments.home.BleScannerService.Companion.startService
-import com.pancast.dongle.fragments.home.BleScannerService.Companion.stopService
+import com.pancast.dongle.fragments.home.BleScannerService.Companion.startScanningService
+import com.pancast.dongle.fragments.home.BleScannerService.Companion.stopScanningService
 import com.pancast.dongle.requests.RequestsHandler
-import com.pancast.dongle.toHexString
 import com.pancast.dongle.utilities.showAlertDialog
 import kotlin.concurrent.thread
 
@@ -59,11 +52,16 @@ class HomeFragment : Fragment() {
             findNavController().navigate(R.id.action_homeFragment_to_storageFragment)
         }
 
+        val mTelemetryBtn: Button = view.findViewById(R.id.viewTelemetryBtn)
+        mTelemetryBtn.setOnClickListener {
+            findNavController().navigate(R.id.action_homeFragment_to_telemetryFragment)
+        }
+
         val mStartBtn: Button = view.findViewById(R.id.startBtn)
         mStartBtn.setOnClickListener {
             try {
-                permissionHandler()
-                startService(requireContext())
+                locationPermissionHandler()
+                startScanningService(requireContext())
             } catch (e: Exception) {
                 val msg = e.localizedMessage!!
                 showAlertDialog(requireContext(), "Error", msg)
@@ -73,7 +71,7 @@ class HomeFragment : Fragment() {
         val mStopBtn: Button = view.findViewById(R.id.stopBtn)
         mStopBtn.setOnClickListener {
             try {
-                stopService(requireContext())
+                stopScanningService(requireContext())
             } catch (e: Exception) {
                 val msg = e.localizedMessage!!
                 showAlertDialog(requireContext(), "Error", msg)
@@ -131,7 +129,7 @@ class HomeFragment : Fragment() {
         return view
     }
 
-    private fun permissionHandler() {
+    private fun locationPermissionHandler() {
         val hasFineLocationPermission = ActivityCompat.checkSelfPermission(requireContext(), android.Manifest.permission.ACCESS_FINE_LOCATION)
         val hasCoarseLocationPermission = ActivityCompat.checkSelfPermission(requireContext(), android.Manifest.permission.ACCESS_COARSE_LOCATION)
         if (hasFineLocationPermission == PackageManager.PERMISSION_DENIED && hasCoarseLocationPermission == PackageManager.PERMISSION_DENIED) {

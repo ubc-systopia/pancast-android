@@ -3,20 +3,23 @@ package com.pancast.dongle.fragments.home
 import android.bluetooth.BluetoothAdapter
 import android.bluetooth.le.*
 import android.content.Context
-import android.content.Intent
 import android.os.Build
+import android.os.PowerManager
 import android.util.Log
-import android.view.View
 import androidx.annotation.RequiresApi
-import androidx.room.Room
-import com.pancast.dongle.data.EntryDatabase
+import androidx.lifecycle.LiveData
+import androidx.lifecycle.MutableLiveData
+import com.pancast.dongle.fragments.home.EntryHandler.Companion.getEntryHandler
+import com.pancast.dongle.fragments.telemetry.PowerGraph
 import java.lang.Exception
 
 
 
 class Scanner(handler: EntryHandler) {
-    private var max = -127
-    private var min = 127
+    // telemetry fields
+    private var lastScansBuffer: MutableList<Int> = mutableListOf()
+    private val numScansBeforeLogging: Int = 10
+
     private val mBlueAdapter: BluetoothAdapter = BluetoothAdapter.getDefaultAdapter()
     private val mBluetoothLeScanner: BluetoothLeScanner =
         BluetoothAdapter.getDefaultAdapter().bluetoothLeScanner
@@ -27,15 +30,13 @@ class Scanner(handler: EntryHandler) {
             if (result == null || result.scanRecord == null) return
             val data = result.scanRecord!!.bytes
             if (handler.isPancastPayload(data)) {
-                if (result.rssi > max) {
-                    max = result.rssi
+                // BEGIN TELEMETRY
+                lastScansBuffer.add(result.rssi)
+                if (lastScansBuffer.size >= numScansBeforeLogging) {
+                    PowerGraph.updateGraph(lastScansBuffer.average())
+                    lastScansBuffer = mutableListOf()
                 }
-                if (result.rssi < min) {
-                    min = result.rssi
-                }
-                Log.d("TELEMETRY", "BEGIN")
-                Log.d("TELEMETRY", "Max is $max")
-                Log.d("TELEMETRY", "Min is $min")
+                // END TELEMETRY
                 handler.handlePayload(data)
             }
             // maybe add more handlers for different types of packets
@@ -68,7 +69,7 @@ class Scanner(handler: EntryHandler) {
                 return tempInstance
             }
             synchronized(this) {
-                val handler = EntryHandler(ctx)
+                val handler = getEntryHandler(ctx)
                 val instance = Scanner(handler)
                 INSTANCE = instance
                 return instance

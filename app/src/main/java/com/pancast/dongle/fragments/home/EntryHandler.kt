@@ -2,6 +2,7 @@ package com.pancast.dongle.fragments.home
 
 import android.content.Context
 import android.util.Log
+import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.ViewModelProvider
 import com.pancast.dongle.data.*
 import com.pancast.dongle.toHexString
@@ -17,7 +18,8 @@ class EntryHandler(ctx: Context) {
     private val mEntryDao: EntryDao = EntryDatabase.getDatabase(ctx).entryDao()
     private val mEntryRepository = EntryRepository(mEntryDao)
 
-    private var count = 0
+    // telemetry
+    var count: MutableLiveData<Int> = MutableLiveData(0)
 
     fun handlePayload(input: ByteArray) {
         val truncatedData = input.copyOfRange(0, 30)
@@ -35,9 +37,7 @@ class EntryHandler(ctx: Context) {
     }
 
     private fun logEncounter(input: ByteArray) {
-        count++
-        Log.d("TELEMETRY", "Number of packets received: $count")
-        Log.d("TELEMETRY", "END")
+        count.value = count.value?.plus(1)
         // need some form of expiry mechanism for old ephemeral IDs within the map. cron job to remove
         // old entries from the cache?
         val decoded: DecodedData = decodeData(input)
@@ -47,10 +47,26 @@ class EntryHandler(ctx: Context) {
             val oldTime = ephemeralIDCache[decoded.ephemeralID.toHexString()]
             val newTime = getMinutesSinceLinuxEpoch()
             if (newTime - oldTime!! >= Constants.ENCOUNTER_TIME_THRESHOLD) {
-                Log.d("DATA", "Entry added")
                 val entry = Entry(decoded.ephemeralID.toHexString(), decoded.beaconID, decoded.locationID, decoded.beaconTime, oldTime.toInt())
                 mEntryRepository.addEntry(entry)
                 ephemeralIDCache[decoded.ephemeralID.toHexString()] = newTime
+            }
+        }
+    }
+
+    companion object {
+        @Volatile
+        private var INSTANCE: EntryHandler? = null
+
+        fun getEntryHandler(ctx: Context): EntryHandler {
+            val tempInstance = INSTANCE
+            if (tempInstance != null) {
+                return tempInstance
+            }
+            synchronized(this) {
+                val instance = EntryHandler(ctx)
+                INSTANCE = instance
+                return instance
             }
         }
     }

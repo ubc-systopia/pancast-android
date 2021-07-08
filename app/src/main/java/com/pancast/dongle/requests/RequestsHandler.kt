@@ -68,7 +68,6 @@ class RequestsHandler {
 
         for (i in data.indices) {
             val en: Entry = data[i]
-            Log.d("DEBUG", en.ephemeralID.decodeHex().size.toString())
             bld.append(
                 java.lang.String.format(
                     "{" +
