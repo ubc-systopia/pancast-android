@@ -1,11 +1,11 @@
 package com.pancast.dongle.requests
 
 import android.os.Build
-import android.util.Log
 import androidx.annotation.RequiresApi
 import com.pancast.dongle.data.Entry
-import com.pancast.dongle.decodeHex
+import com.pancast.dongle.utilities.decodeHex
 import com.pancast.dongle.utilities.Constants
+import com.pancast.dongle.utilities.Constants.MCC_CODE
 import com.pancast.dongle.utilities.RequestType
 import okhttp3.*
 import okhttp3.MediaType.Companion.toMediaType
@@ -17,7 +17,7 @@ import javax.net.ssl.TrustManager
 
 class RequestsHandler {
     @RequiresApi(Build.VERSION_CODES.O)
-    fun uploadData(data: List<Entry>, type: RequestType): String? {
+    fun uploadData(data: List<Entry>, type: RequestType): String {
         val sslContext: SSLContext = SSLContext.getInstance("TLSv1.2")
         val myTrustManagerArray: Array<TrustManager> = arrayOf(NaiveTrustManager())
         sslContext.init(null, myTrustManagerArray, SecureRandom())
@@ -54,6 +54,24 @@ class RequestsHandler {
             .hostnameVerifier { _, _ -> true }
             .build()
         val url = "${Constants.WEB_PROTOCOL}://${Constants.BACKEND_ADDR}:${Constants.BACKEND_PORT}/update"
+        val request: Request = Request.Builder()
+            .url(url)
+            .get()
+            .build()
+        client.newCall(request).execute().use { response -> return response.body?.bytes() }
+    }
+
+    fun downloadGaenRiskBroadcast(): ByteArray? {
+        val sslContext: SSLContext = SSLContext.getInstance("TLSv1.2")
+        val myTrustManagerArray: Array<TrustManager> = arrayOf(NaiveTrustManager())
+        sslContext.init(null, myTrustManagerArray, SecureRandom())
+        val trustManager = NaiveTrustManager()
+        val client = OkHttpClient.Builder()
+            .sslSocketFactory(sslContext.socketFactory, trustManager)
+            .connectionSpecs(listOf(ConnectionSpec.CLEARTEXT, ConnectionSpec.MODERN_TLS, ConnectionSpec.COMPATIBLE_TLS))
+            .hostnameVerifier { _, _ -> true }
+            .build()
+        val url = "${Constants.GAEN_WEB_PROTOCOL}://${Constants.GAEN_BACKEND_ADDR}:${Constants.GAEN_BACKEND_PORT}/retrieve/${MCC_CODE}/00000/noauthhere"
         val request: Request = Request.Builder()
             .url(url)
             .get()

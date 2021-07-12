@@ -4,8 +4,7 @@ import androidx.lifecycle.LiveData
 import androidx.room.Dao
 import androidx.room.Insert
 import androidx.room.Query
-
-const val MINUTES_IN_WINDOW = 20160
+import com.pancast.dongle.utilities.Constants.MINUTES_IN_WINDOW
 
 @Dao
 interface EntryDao {

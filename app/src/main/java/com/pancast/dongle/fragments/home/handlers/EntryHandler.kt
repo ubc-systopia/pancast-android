@@ -1,11 +1,10 @@
 package com.pancast.dongle.fragments.home
 
 import android.content.Context
-import android.util.Log
 import androidx.lifecycle.MutableLiveData
-import androidx.lifecycle.ViewModelProvider
 import com.pancast.dongle.data.*
-import com.pancast.dongle.toHexString
+import com.pancast.dongle.fragments.home.handlers.PacketHandler
+import com.pancast.dongle.utilities.toHexString
 import com.pancast.dongle.utilities.Constants
 import com.pancast.dongle.utilities.MaxBroadcastSize
 import com.pancast.dongle.utilities.byteArrayOfInts
@@ -13,21 +12,21 @@ import com.pancast.dongle.utilities.getMinutesSinceLinuxEpoch
 import java.nio.ByteBuffer
 import java.nio.ByteOrder
 
-class EntryHandler(ctx: Context) {
+class EntryHandler(ctx: Context): PacketHandler {
     private val ephemeralIDCache: MutableMap<String, Long> = mutableMapOf()
-    private val mEntryDao: EntryDao = EntryDatabase.getDatabase(ctx).entryDao()
+    private val mEntryDao: EntryDao = PancastDatabase.getDatabase(ctx).entryDao()
     private val mEntryRepository = EntryRepository(mEntryDao)
 
     // telemetry
     var count: MutableLiveData<Int> = MutableLiveData(0)
 
-    fun handlePayload(input: ByteArray) {
-        val truncatedData = input.copyOfRange(0, 30)
+    override fun handlePayload(payload: ByteArray) {
+        val truncatedData = payload.copyOfRange(0, 30)
         val rearrangedPayload = rearrangeData(truncatedData)
         logEncounter(rearrangedPayload)
     }
 
-    fun isPancastPayload(payload: ByteArray): Boolean {
+    override fun isOfType(payload: ByteArray): Boolean {
         return if (payload.size < 30) {
             false
         } else {

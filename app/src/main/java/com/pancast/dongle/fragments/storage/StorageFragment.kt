@@ -14,6 +14,7 @@ import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
 import com.pancast.dongle.R
 import com.pancast.dongle.data.EntryViewModel
+import com.pancast.dongle.fragments.upload.UploadFragmentDirections
 
 private const val ARG_PARAM1 = "param1"
 private const val ARG_PARAM2 = "param2"
@@ -30,9 +31,6 @@ class StorageFragment : Fragment() {
         val view = inflater.inflate(R.layout.fragment_storage, container, false)
         // navigates to the upload screen
         val mUploadBtn: Button = view.findViewById(R.id.uploadBtn)
-        mUploadBtn.setOnClickListener {
-            findNavController().navigate(R.id.action_storageFragment_to_uploadFragment)
-        }
 
         val adapter = StorageAdapter()
         val recyclerView = view.findViewById<RecyclerView>(R.id.recyclerView)
@@ -43,6 +41,19 @@ class StorageFragment : Fragment() {
         mEntryViewModel.entries.observe(viewLifecycleOwner, {
             adapter.changeState(it)
         })
+
+        mUploadBtn.setOnClickListener {
+//            val action = StorageFragmentDirections.actionStorageFragmentToUploadFragment(adapter.getState()
+//                .toTypedArray())
+//            findNavController().navigate(action)
+            findNavController().navigate(R.id.action_storageFragment_to_uploadFragment)
+        }
+
+        val mDeleteBtn: Button = view.findViewById(R.id.deleteBtn)
+        mDeleteBtn.setOnClickListener {
+            mEntryViewModel.deleteOldEntries()
+        }
+
 
         return view
     }

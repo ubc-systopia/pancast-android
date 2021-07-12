@@ -43,4 +43,11 @@
         app:layout_constraintStart_toStartOf="@+id/item_beacon_id"
         app:layout_constraintTop_toBottomOf="@+id/item_beacon_id" />
 
+    <CheckBox
+        android:id="@+id/excludeCheckBox"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintTop_toTopOf="@+id/item_eph_id" />
+
 </androidx.constraintlayout.widget.ConstraintLayout>

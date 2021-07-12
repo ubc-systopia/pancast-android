@@ -3,6 +3,7 @@ package com.pancast.dongle.fragments.upload
 import android.os.Build
 import android.os.Bundle
 import android.os.Handler
+import android.util.Log
 import androidx.fragment.app.Fragment
 import android.view.LayoutInflater
 import android.view.View
@@ -10,6 +11,7 @@ import android.view.ViewGroup
 import android.widget.Button
 import androidx.annotation.RequiresApi
 import androidx.lifecycle.ViewModelProvider
+import androidx.navigation.fragment.navArgs
 import com.pancast.dongle.R
 import com.pancast.dongle.data.EntryViewModel
 import com.pancast.dongle.requests.RequestsHandler
@@ -19,6 +21,7 @@ import java.lang.Exception
 import kotlin.concurrent.thread
 
 class UploadFragment : Fragment() {
+    val data: UploadFragmentArgs by navArgs()
 
     private lateinit var mEntryViewModel: EntryViewModel
 
@@ -31,6 +34,9 @@ class UploadFragment : Fragment() {
         val mHandler = Handler()
         val view = inflater.inflate(R.layout.fragment_upload, container, false)
         mEntryViewModel = ViewModelProvider(this).get(EntryViewModel::class.java)
+
+        val entryData = data.dataToUpload
+        Log.d("KEK", entryData.toString())
 
         val mUploadRiskBtn: Button = view.findViewById(R.id.uploadRiskBtn)
         mUploadRiskBtn.setOnClickListener {

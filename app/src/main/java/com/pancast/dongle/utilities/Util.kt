@@ -1,20 +1,18 @@
 package com.pancast.dongle.utilities
 
-import android.R
 import android.app.AlertDialog
 import android.content.Context
-import android.content.DialogInterface
+import com.pancast.dongle.R
 import com.pancast.dongle.utilities.Constants.MILLISECONDS_IN_SECOND
 import com.pancast.dongle.utilities.Constants.SECONDS_IN_MINUTE
 import java.text.SimpleDateFormat
 import java.util.*
 
 
-val MaxBroadcastSize = 30
+const val MaxBroadcastSize = 30
 
 fun getMinutesSinceLinuxEpoch(): Long {
-    val currentTime: Long = System.currentTimeMillis() / (MILLISECONDS_IN_SECOND * SECONDS_IN_MINUTE)
-    return currentTime
+    return System.currentTimeMillis() / (MILLISECONDS_IN_SECOND * SECONDS_IN_MINUTE)
 }
 
 fun minutesIntoTime(minutes: Int): String {

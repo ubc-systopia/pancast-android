@@ -1,8 +1,7 @@
 package com.pancast.dongle.cuckoo
 
-import android.util.Log
 import com.pancast.dongle.cuckoo.hash.MetroHash64
-import com.pancast.dongle.fingerprintToBytes
+import com.pancast.dongle.utilities.fingerprintToBytes
 import java.nio.ByteBuffer
 import java.nio.ByteOrder
 

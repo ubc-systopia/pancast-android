@@ -1,15 +1,9 @@
-package com.pancast.dongle
+package com.pancast.dongle.utilities
 
 import com.pancast.dongle.cuckoo.FINGERPRINT_SIZE_IN_BYTES
 import java.nio.ByteBuffer
 
 fun ByteArray.toHexString() = joinToString("") { "%02x".format(it) }
-
-fun uLongToBytes(x: ULong): ByteArray {
-    val buffer = ByteBuffer.allocate(8)
-    buffer.putLong(x.toLong())
-    return buffer.array()
-}
 
 fun fingerprintToBytes(x: ULong): ByteArray {
     val buffer = ByteBuffer.allocate(FINGERPRINT_SIZE_IN_BYTES.toInt())

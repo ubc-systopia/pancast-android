@@ -3,6 +3,7 @@ package com.pancast.dongle
 import com.pancast.dongle.fragments.home.decodeData
 import com.pancast.dongle.utilities.byteArrayOfInts
 import com.pancast.dongle.utilities.getMinutesSinceLinuxEpoch
+import com.pancast.dongle.utilities.toHexString
 import org.junit.Test
 
 import org.junit.Assert.*

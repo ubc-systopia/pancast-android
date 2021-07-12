@@ -16,9 +16,10 @@ import androidx.navigation.fragment.findNavController
 import com.pancast.dongle.R
 import com.pancast.dongle.cuckoo.CuckooFilter
 import com.pancast.dongle.data.EntryViewModel
-import com.pancast.dongle.decodeHex
+import com.pancast.dongle.utilities.decodeHex
 import com.pancast.dongle.fragments.home.BleScannerService.Companion.startScanningService
 import com.pancast.dongle.fragments.home.BleScannerService.Companion.stopScanningService
+import com.pancast.dongle.gaen.PacketParser
 import com.pancast.dongle.requests.RequestsHandler
 import com.pancast.dongle.utilities.showAlertDialog
 import kotlin.concurrent.thread
@@ -81,52 +82,53 @@ class HomeFragment : Fragment() {
         val mCheckExposureBtn: Button = view.findViewById(R.id.checkExposureBtn)
         mCheckExposureBtn.setOnClickListener {
             thread(start = true) {
+                checkRiskBroadcast(mHandler)
+            }
+        }
+
+        val mCheckGaenExposureButton: Button = view.findViewById(R.id.checkGaenExposureBtn)
+        mCheckGaenExposureButton.setOnClickListener {
+            thread(start = true) {
                 try {
-                    val riskBroadcast = RequestsHandler().downloadRiskBroadcast()
+                    val riskBroadcast = RequestsHandler().downloadGaenRiskBroadcast()
                     if (riskBroadcast != null) {
-                        val cf = CuckooFilter(riskBroadcast)
-                        val entries = mEntryViewModel.repository.getAllEntries()
-                        for (entry in entries) {
-                            val entryEphID = entry.ephemeralID + "00" // because current ephIDs are 14 bytes, append extra null byte
-                            val result = cf.lookupItem(entryEphID.decodeHex())
-                            if (result) {
-                                val count = mEntryViewModel.repository.getNumEntries(entry.ephemeralID)
-                                mHandler.post {
-                                    showAlertDialog(
-                                        requireContext(),
-                                        "Exposure: $entryEphID",
-                                        "You may have been exposed. You have encountered an infected beacon $count times."
-                                    )
-                                }
-                            }
-                        }
+                        val parsedData = PacketParser(riskBroadcast)
+                        parsedData.useData()
                     }
                 } catch (e: Exception) {
-                    if (e.localizedMessage != null) {
-                        val msg = e.localizedMessage!!
+                    showErrorMessage(e, mHandler)
+                }
+            }
+        }
+
+        return view
+    }
+
+    private fun checkRiskBroadcast(mHandler: Handler) {
+        try {
+            val riskBroadcast = RequestsHandler().downloadRiskBroadcast()
+            if (riskBroadcast != null) {
+                val cf = CuckooFilter(riskBroadcast)
+                val entries = mEntryViewModel.repository.getAllEntries()
+                for (entry in entries) {
+                    val entryEphID =
+                        entry.ephemeralID + "00" // because current ephIDs are 14 bytes, append extra null byte
+                    val result = cf.lookupItem(entryEphID.decodeHex())
+                    if (result) {
+                        val count = mEntryViewModel.repository.getNumEntries(entry.ephemeralID)
                         mHandler.post {
                             showAlertDialog(
                                 requireContext(),
-                                "Error",
-                                msg
-                            )
-                        }
-                    } else {
-                        mHandler.post {
-                            showAlertDialog(
-                                requireContext(),
-                                "Error",
-                                "Unknown exception"
+                                "Exposure: $entryEphID",
+                                "You may have been exposed. You have encountered an infected beacon $count times."
                             )
                         }
                     }
                 }
-
             }
-
+        } catch (e: Exception) {
+            showErrorMessage(e, mHandler)
         }
-
-        return view
     }
 
     private fun locationPermissionHandler() {
@@ -135,6 +137,27 @@ class HomeFragment : Fragment() {
         if (hasFineLocationPermission == PackageManager.PERMISSION_DENIED && hasCoarseLocationPermission == PackageManager.PERMISSION_DENIED) {
             checkLocationPermission.launch(arrayOf(android.Manifest.permission.ACCESS_FINE_LOCATION,
                 android.Manifest.permission.ACCESS_COARSE_LOCATION))
+        }
+    }
+
+    private fun showErrorMessage(e: Exception, mHandler: Handler) {
+        if (e.localizedMessage != null) {
+            val msg = e.localizedMessage!!
+            mHandler.post {
+                showAlertDialog(
+                    requireContext(),
+                    "Error",
+                    msg
+                )
+            }
+        } else {
+            mHandler.post {
+                showAlertDialog(
+                    requireContext(),
+                    "Error",
+                    "Unknown exception"
+                )
+            }
         }
     }
 }

@@ -4,18 +4,14 @@ import android.bluetooth.BluetoothAdapter
 import android.bluetooth.le.*
 import android.content.Context
 import android.os.Build
-import android.os.PowerManager
-import android.util.Log
 import androidx.annotation.RequiresApi
-import androidx.lifecycle.LiveData
-import androidx.lifecycle.MutableLiveData
 import com.pancast.dongle.fragments.home.EntryHandler.Companion.getEntryHandler
+import com.pancast.dongle.fragments.home.handlers.GAENHandler
+import com.pancast.dongle.fragments.home.handlers.GAENHandler.Companion.getGaenHandler
 import com.pancast.dongle.fragments.telemetry.PowerGraph
-import java.lang.Exception
 
 
-
-class Scanner(handler: EntryHandler) {
+class Scanner(entryHandler: EntryHandler, gaenHandler: GAENHandler) {
     // telemetry fields
     private var lastScansBuffer: MutableList<Int> = mutableListOf()
     private val numScansBeforeLogging: Int = 10
@@ -29,7 +25,7 @@ class Scanner(handler: EntryHandler) {
             super.onScanResult(callbackType, result)
             if (result == null || result.scanRecord == null) return
             val data = result.scanRecord!!.bytes
-            if (handler.isPancastPayload(data)) {
+            if (entryHandler.isOfType(data)) {
                 // BEGIN TELEMETRY
                 lastScansBuffer.add(result.rssi)
                 if (lastScansBuffer.size >= numScansBeforeLogging) {
@@ -37,7 +33,9 @@ class Scanner(handler: EntryHandler) {
                     lastScansBuffer = mutableListOf()
                 }
                 // END TELEMETRY
-                handler.handlePayload(data)
+                entryHandler.handlePayload(data)
+            } else if (gaenHandler.isOfType(data)) {
+                gaenHandler.handlePayload(data)
             }
             // maybe add more handlers for different types of packets
         }
@@ -69,8 +67,9 @@ class Scanner(handler: EntryHandler) {
                 return tempInstance
             }
             synchronized(this) {
-                val handler = getEntryHandler(ctx)
-                val instance = Scanner(handler)
+                val entryHandler = getEntryHandler(ctx)
+                val gaenHandler = getGaenHandler(ctx)
+                val instance = Scanner(entryHandler, gaenHandler)
                 INSTANCE = instance
                 return instance
             }

@@ -7,9 +7,9 @@ import androidx.lifecycle.viewModelScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 
-class EntryViewModel(application: Application): AndroidViewModel(application) {
-    val repository: EntryRepository
-    val entries: LiveData<List<Entry>>
+class ExposureKeyViewModel(application: Application): AndroidViewModel(application) {
+    val repository: Exposure
+    val entries: LiveData<List<ExposureKey>>
 
     init {
         val entryDao = PancastDatabase.getDatabase(application).entryDao()

@@ -9,4 +9,6 @@
     <string name="dummy_time">2021-07-04, 18:02</string>
     <string name="dummy_eph_id">Ephemeral ID: 0xDEADBEEFDEADBE</string>
     <string name="dummy_location_id">Beacon ID: 22220001</string>
+    <string name="yes">Ok</string>
+    <string name="no">Cancel</string>
 </resources>
