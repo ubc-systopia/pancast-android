@@ -9,7 +9,7 @@ import androidx.room.RoomDatabase
 // remember to increment the version whenever we change the schema
 
 // uses the singleton pattern
-@Database(entities = [Entry::class, ExposureKey::class], version = 3, exportSchema = false)
+@Database(entities = [Entry::class, ExposureKey::class], version = 4, exportSchema = false)
 abstract class PancastDatabase : RoomDatabase() {
     abstract fun entryDao(): EntryDao
     abstract fun exposureKeyDao(): ExposureKeyDao

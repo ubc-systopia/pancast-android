@@ -33,9 +33,9 @@ class Scanner(entryHandler: EntryHandler, gaenHandler: GAENHandler) {
                     lastScansBuffer = mutableListOf()
                 }
                 // END TELEMETRY
-                entryHandler.handlePayload(data)
+                entryHandler.handlePayload(data, result.rssi)
             } else if (gaenHandler.isOfType(data)) {
-                gaenHandler.handlePayload(data)
+                gaenHandler.handlePayload(data, result.rssi)
             }
             // maybe add more handlers for different types of packets
         }

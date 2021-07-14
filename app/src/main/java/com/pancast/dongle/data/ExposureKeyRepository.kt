@@ -1,5 +1,7 @@
 package com.pancast.dongle.data
 
+import com.pancast.dongle.utilities.getMinutesSinceLinuxEpoch
+
 class ExposureKeyRepository(private val exposureKeyDao: ExposureKeyDao) {
 
     fun addExposureKey(exposureKey: ExposureKey) {
@@ -7,6 +9,6 @@ class ExposureKeyRepository(private val exposureKeyDao: ExposureKeyDao) {
     }
 
     fun getAllEntries(): List<ExposureKey> {
-        return exposureKeyDao.getAll()
+        return exposureKeyDao.getAll(getMinutesSinceLinuxEpoch())
     }
 }

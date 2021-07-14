@@ -3,6 +3,7 @@ package com.pancast.dongle.fragments.home
 import android.content.pm.PackageManager
 import android.os.Bundle
 import android.os.Handler
+import android.util.Log
 import androidx.fragment.app.Fragment
 import android.view.LayoutInflater
 import android.view.View
@@ -11,15 +12,20 @@ import android.widget.Button
 import androidx.activity.result.ActivityResultLauncher
 import androidx.activity.result.contract.ActivityResultContracts
 import androidx.core.app.ActivityCompat
+import androidx.lifecycle.ViewModel
 import androidx.lifecycle.ViewModelProvider
 import androidx.navigation.fragment.findNavController
 import com.pancast.dongle.R
 import com.pancast.dongle.cuckoo.CuckooFilter
 import com.pancast.dongle.data.EntryViewModel
+import com.pancast.dongle.data.ExposureKeyDao
+import com.pancast.dongle.data.ExposureKeyRepository
+import com.pancast.dongle.data.PancastDatabase
 import com.pancast.dongle.utilities.decodeHex
 import com.pancast.dongle.fragments.home.BleScannerService.Companion.startScanningService
 import com.pancast.dongle.fragments.home.BleScannerService.Companion.stopScanningService
 import com.pancast.dongle.gaen.PacketParser
+import com.pancast.dongle.gaen.getRPIsFromTEK
 import com.pancast.dongle.requests.RequestsHandler
 import com.pancast.dongle.utilities.showAlertDialog
 import kotlin.concurrent.thread
@@ -28,6 +34,8 @@ class HomeFragment : Fragment() {
 
     private lateinit var checkLocationPermission: ActivityResultLauncher<Array<String>>
     private lateinit var mEntryViewModel: EntryViewModel
+    private lateinit var exposureKeyDao: ExposureKeyDao
+    private lateinit var exposureKeyRepository: ExposureKeyRepository
 
     override fun onCreateView(
         inflater: LayoutInflater, container: ViewGroup?,
@@ -39,6 +47,8 @@ class HomeFragment : Fragment() {
         val mHandler = Handler()
 
         mEntryViewModel = ViewModelProvider(this).get(EntryViewModel::class.java)
+        exposureKeyDao = PancastDatabase.getDatabase(requireContext()).exposureKeyDao()
+        exposureKeyRepository = ExposureKeyRepository(exposureKeyDao)
 
         checkLocationPermission = registerForActivityResult(
             ActivityResultContracts.RequestMultiplePermissions()) { permissions ->
@@ -89,19 +99,39 @@ class HomeFragment : Fragment() {
         val mCheckGaenExposureButton: Button = view.findViewById(R.id.checkGaenExposureBtn)
         mCheckGaenExposureButton.setOnClickListener {
             thread(start = true) {
-                try {
-                    val riskBroadcast = RequestsHandler().downloadGaenRiskBroadcast()
-                    if (riskBroadcast != null) {
-                        val parsedData = PacketParser(riskBroadcast)
-                        parsedData.useData()
-                    }
-                } catch (e: Exception) {
-                    showErrorMessage(e, mHandler)
-                }
+                checkGaenRiskBroadcast(mHandler)
             }
         }
 
         return view
+    }
+
+    private fun checkGaenRiskBroadcast(mHandler: Handler) {
+        try {
+            val riskBroadcast = RequestsHandler().downloadGaenRiskBroadcast()
+            if (riskBroadcast != null) {
+                val parsedData = PacketParser(riskBroadcast)
+                val encounteredKeys = exposureKeyRepository.getAllEntries().map{it.rollingProximityIdentifier.decodeHex()}
+                for (entry in parsedData.tekExport.keysList) {
+                    val key = entry.keyData.toByteArray()
+                    val startInterval = entry.rollingStartIntervalNumber
+                    val listOfRPIs = getRPIsFromTEK(key, startInterval)
+                    for (rpi in listOfRPIs) {
+                        if (encounteredKeys.contains(rpi)) {
+                            mHandler.post {
+                                showAlertDialog(
+                                    requireContext(),
+                                    "Exposure: $rpi",
+                                    "You may have been exposed to an infected beacon or user."
+                                )
+                            }
+                        }
+                    }
+                }
+            }
+        } catch (e: Exception) {
+            showErrorMessage(e, mHandler)
+        }
     }
 
     private fun checkRiskBroadcast(mHandler: Handler) {

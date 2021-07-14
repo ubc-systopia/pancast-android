@@ -7,5 +7,6 @@ data class ExposureKey(
     // ephID, beaconID, locationID, beaconTime, deviceTime
     val rollingProximityIdentifier: String,
     val associatedEncryptedMetadata: String,
-    val time: Int
+    val time: Int,
+    val rssi: Int
 )

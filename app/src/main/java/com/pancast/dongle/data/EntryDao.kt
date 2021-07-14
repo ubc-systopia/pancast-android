@@ -3,6 +3,7 @@ package com.pancast.dongle.data
 import androidx.lifecycle.LiveData
 import androidx.room.Dao
 import androidx.room.Insert
+import androidx.room.OnConflictStrategy
 import androidx.room.Query
 import com.pancast.dongle.utilities.Constants.MINUTES_IN_WINDOW
 
@@ -19,7 +20,7 @@ interface EntryDao {
     fun getNumEntries(ephID: String): Int
 
     // insert new entry
-    @Insert
+    @Insert(onConflict = OnConflictStrategy.IGNORE)
     fun insert(entry: Entry)
 
     // delete all entries older than 14 days old

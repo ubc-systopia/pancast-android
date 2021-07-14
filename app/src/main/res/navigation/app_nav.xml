@@ -38,9 +38,7 @@
             android:id="@+id/action_uploadFragment_to_storageFragment"
             app:destination="@id/storageFragment" />
         <argument android:name="dataToUpload"
-            app:argType="com.pancast.dongle.fragments.storage.EntryWrapper"
-            app:nullable="true"
-            android:defaultValue="@null" />
+            app:argType="com.pancast.dongle.data.Entry[]" />
     </fragment>
     <fragment
         android:id="@+id/telemetryFragment"

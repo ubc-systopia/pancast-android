@@ -7,11 +7,13 @@ import java.util.zip.ZipInputStream
 class PacketParser(val data: ByteArray) {
     private val signature: ByteArray
     private val binary: ByteArray
+    val tekExport: Covidshield.TemporaryExposureKeyExport
 
     init {
         val unzippedData = unzip(data)
         signature = unzippedData[1]
         binary = unzippedData[0].copyOfRange(16, unzippedData[0].size)
+        tekExport = unpackData()
     }
     // The byte array that comes from the /retrieve endpoint of the Covid Alert app takes on the
     // form of:
@@ -42,9 +44,8 @@ class PacketParser(val data: ByteArray) {
         return finalOutput
     }
 
-    fun useData() {
-        val teke = Covidshield.TemporaryExposureKeyExport.newBuilder().mergeFrom(binary.inputStream()).build()
-        Log.d("TEST", teke.toString())
+    fun unpackData(): Covidshield.TemporaryExposureKeyExport {
+        return Covidshield.TemporaryExposureKeyExport.newBuilder().mergeFrom(binary.inputStream()).build()
     }
 
 }

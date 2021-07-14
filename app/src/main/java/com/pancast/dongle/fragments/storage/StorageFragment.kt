@@ -43,10 +43,10 @@ class StorageFragment : Fragment() {
         })
 
         mUploadBtn.setOnClickListener {
-//            val action = StorageFragmentDirections.actionStorageFragmentToUploadFragment(adapter.getState()
-//                .toTypedArray())
-//            findNavController().navigate(action)
-            findNavController().navigate(R.id.action_storageFragment_to_uploadFragment)
+            val action = StorageFragmentDirections.actionStorageFragmentToUploadFragment(adapter.getState()
+                .toTypedArray())
+            findNavController().navigate(action)
+//            findNavController().navigate(R.id.action_storageFragment_to_uploadFragment)
         }
 
         val mDeleteBtn: Button = view.findViewById(R.id.deleteBtn)

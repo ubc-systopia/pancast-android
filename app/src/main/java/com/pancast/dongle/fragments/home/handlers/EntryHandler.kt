@@ -11,6 +11,7 @@ import com.pancast.dongle.utilities.byteArrayOfInts
 import com.pancast.dongle.utilities.getMinutesSinceLinuxEpoch
 import java.nio.ByteBuffer
 import java.nio.ByteOrder
+import kotlin.concurrent.thread
 
 class EntryHandler(ctx: Context): PacketHandler {
     private val ephemeralIDCache: MutableMap<String, Long> = mutableMapOf()
@@ -20,7 +21,7 @@ class EntryHandler(ctx: Context): PacketHandler {
     // telemetry
     var count: MutableLiveData<Int> = MutableLiveData(0)
 
-    override fun handlePayload(payload: ByteArray) {
+    override fun handlePayload(payload: ByteArray, rssi: Int) {
         val truncatedData = payload.copyOfRange(0, 30)
         val rearrangedPayload = rearrangeData(truncatedData)
         logEncounter(rearrangedPayload)
@@ -47,7 +48,9 @@ class EntryHandler(ctx: Context): PacketHandler {
             val newTime = getMinutesSinceLinuxEpoch()
             if (newTime - oldTime!! >= Constants.ENCOUNTER_TIME_THRESHOLD) {
                 val entry = Entry(decoded.ephemeralID.toHexString(), decoded.beaconID, decoded.locationID, decoded.beaconTime, oldTime.toInt())
-                mEntryRepository.addEntry(entry)
+                thread(start=true) {
+                    mEntryRepository.addEntry(entry)
+                }
                 ephemeralIDCache[decoded.ephemeralID.toHexString()] = newTime
             }
         }

@@ -13,7 +13,9 @@ import androidx.annotation.RequiresApi
 import androidx.lifecycle.ViewModelProvider
 import androidx.navigation.fragment.navArgs
 import com.pancast.dongle.R
+import com.pancast.dongle.data.Entry
 import com.pancast.dongle.data.EntryViewModel
+import com.pancast.dongle.fragments.storage.EntryWrapper
 import com.pancast.dongle.requests.RequestsHandler
 import com.pancast.dongle.utilities.RequestType
 import com.pancast.dongle.utilities.showAlertDialog
@@ -24,6 +26,8 @@ class UploadFragment : Fragment() {
     val data: UploadFragmentArgs by navArgs()
 
     private lateinit var mEntryViewModel: EntryViewModel
+    private lateinit var entryData: Array<Entry>
+
 
     @RequiresApi(Build.VERSION_CODES.O)
     override fun onCreateView(
@@ -35,14 +39,14 @@ class UploadFragment : Fragment() {
         val view = inflater.inflate(R.layout.fragment_upload, container, false)
         mEntryViewModel = ViewModelProvider(this).get(EntryViewModel::class.java)
 
-        val entryData = data.dataToUpload
-        Log.d("KEK", entryData.toString())
+        // initialize entryData from arguments passed from storage
+        entryData = data.dataToUpload
 
         val mUploadRiskBtn: Button = view.findViewById(R.id.uploadRiskBtn)
         mUploadRiskBtn.setOnClickListener {
             thread(start = true) {
                 try {
-                    val dataToUpload = mEntryViewModel.repository.getAllEntries()
+                    val dataToUpload = entryData.toList()
                     RequestsHandler().uploadData(dataToUpload, RequestType.RISK_TYPE)
                     mHandler.post {
                         showAlertDialog(
@@ -67,7 +71,7 @@ class UploadFragment : Fragment() {
         mUploadEpiBtn.setOnClickListener {
             thread(start = true) {
                 try {
-                    val dataToUpload = mEntryViewModel.repository.getAllEntries()
+                    val dataToUpload = entryData.toList()
                     RequestsHandler().uploadData(dataToUpload, RequestType.EPI_TYPE)
                 } catch (e: Exception) {
                     // handle

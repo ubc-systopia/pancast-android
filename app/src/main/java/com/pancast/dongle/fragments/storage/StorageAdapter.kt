@@ -48,8 +48,8 @@ class StorageAdapter: RecyclerView.Adapter<StorageAdapter.EntryViewHolder>() {
         notifyDataSetChanged()
     }
 
-    fun getState(): List<EntryWrapper> {
-        return entryList
+    fun getState(): List<Entry> {
+        return entryList.filter{!it.isChecked}.map{ it.entry }
     }
 
     override fun getItemCount(): Int {

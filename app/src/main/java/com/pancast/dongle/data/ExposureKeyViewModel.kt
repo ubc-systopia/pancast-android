@@ -8,24 +8,16 @@ import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 
 class ExposureKeyViewModel(application: Application): AndroidViewModel(application) {
-    val repository: Exposure
-    val entries: LiveData<List<ExposureKey>>
+    private val repository: ExposureKeyRepository
 
     init {
-        val entryDao = PancastDatabase.getDatabase(application).entryDao()
-        repository = EntryRepository(entryDao)
-        entries = repository.entries
+        val entryDao = PancastDatabase.getDatabase(application).exposureKeyDao()
+        repository = ExposureKeyRepository(entryDao)
     }
 
-    fun addEntry(entry: Entry) {
+    fun addExposureKey(key: ExposureKey) {
         viewModelScope.launch(Dispatchers.IO) {
-            repository.addEntry(entry)
-        }
-    }
-
-    fun deleteOldEntries() {
-        viewModelScope.launch(Dispatchers.IO) {
-            repository.deleteEntries()
+            repository.addExposureKey(key)
         }
     }
 }

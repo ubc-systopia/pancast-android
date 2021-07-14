@@ -6,6 +6,7 @@ import com.pancast.dongle.data.ExposureKeyRepository
 import com.pancast.dongle.data.PancastDatabase
 import com.pancast.dongle.utilities.toHexString
 import com.pancast.dongle.utilities.getMinutesSinceLinuxEpoch
+import kotlin.concurrent.thread
 
 class GAENHandler(ctx: Context): PacketHandler {
     private val mExposureKeyDao = PancastDatabase.getDatabase(ctx).exposureKeyDao()
@@ -16,13 +17,15 @@ class GAENHandler(ctx: Context): PacketHandler {
         return getUUID(payload)
     }
 
-    override fun handlePayload(payload: ByteArray) {
+    override fun handlePayload(payload: ByteArray, rssi: Int) {
         val rollingProximityIdentifier = payload.copyOfRange(11, 27)
         val associatedEncryptedMetadata = payload.copyOfRange(27, 31)
         val rpiAsHexString = rollingProximityIdentifier.toHexString()
         val aemAsHexString = associatedEncryptedMetadata.toHexString()
-        val key = ExposureKey(rpiAsHexString, aemAsHexString, getMinutesSinceLinuxEpoch().toInt())
-//        mExposureKeyRepository.addExposureKey(key)
+        val key = ExposureKey(rpiAsHexString, aemAsHexString, getMinutesSinceLinuxEpoch().toInt(), rssi)
+        thread(start = true){
+            mExposureKeyRepository.addExposureKey(key)
+        }
     }
 
     private fun getUUID(payload: ByteArray): Boolean {
