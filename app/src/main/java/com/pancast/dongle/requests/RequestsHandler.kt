@@ -3,10 +3,12 @@ package com.pancast.dongle.requests
 import android.os.Build
 import androidx.annotation.RequiresApi
 import com.pancast.dongle.data.Entry
+import com.pancast.dongle.gaen.computeHMACAuthenticationString
 import com.pancast.dongle.utilities.decodeHex
 import com.pancast.dongle.utilities.Constants
 import com.pancast.dongle.utilities.Constants.MCC_CODE
 import com.pancast.dongle.utilities.RequestType
+import com.pancast.dongle.utilities.toHexString
 import okhttp3.*
 import okhttp3.MediaType.Companion.toMediaType
 import okhttp3.RequestBody.Companion.toRequestBody
@@ -71,7 +73,9 @@ class RequestsHandler {
             .connectionSpecs(listOf(ConnectionSpec.CLEARTEXT, ConnectionSpec.MODERN_TLS, ConnectionSpec.COMPATIBLE_TLS))
             .hostnameVerifier { _, _ -> true }
             .build()
-        val url = "${Constants.GAEN_WEB_PROTOCOL}://${Constants.GAEN_BACKEND_ADDR}:${Constants.GAEN_BACKEND_PORT}/retrieve/${MCC_CODE}/00000/noauthhere"
+        val authenticationString = computeHMACAuthenticationString().toHexString()
+        val url = "${Constants.GAEN_WEB_PROTOCOL}://${Constants.GAEN_BACKEND_ADDR}:" +
+                "${Constants.GAEN_BACKEND_PORT}/retrieve/${MCC_CODE}/00000/${authenticationString}"
         val request: Request = Request.Builder()
             .url(url)
             .get()

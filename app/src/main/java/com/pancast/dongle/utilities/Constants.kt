@@ -14,6 +14,8 @@ object Constants {
     const val GAEN_BACKEND_ADDR = "10.0.0.32"
     const val GAEN_BACKEND_PORT = "8001"
     const val MCC_CODE = "302"
+    // my inner scream:
+    const val HMAC_KEY = "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa"
 }
 
 enum class RequestType {

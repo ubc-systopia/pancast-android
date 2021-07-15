@@ -1,10 +1,31 @@
 package com.pancast.dongle.gaen
 
+import android.util.Log
+import com.pancast.dongle.utilities.Constants.HMAC_KEY
+import com.pancast.dongle.utilities.Constants.MCC_CODE
 import com.pancast.dongle.utilities.byteArrayOfInts
+import com.pancast.dongle.utilities.decodeHex
+import com.pancast.dongle.utilities.getMinutesSinceLinuxEpoch
 import java.nio.ByteBuffer
 import javax.crypto.Cipher
 import javax.crypto.Mac
 import javax.crypto.spec.SecretKeySpec
+
+
+fun computeHMACAuthenticationString(): ByteArray {
+    val currentHour = getMinutesSinceLinuxEpoch() / 60
+    val base = "$MCC_CODE:00000:$currentHour"
+    val key = HMAC_KEY.decodeHex()
+    return HMAC(base.toByteArray(), key)
+}
+
+fun HMAC(message: ByteArray, key: ByteArray): ByteArray {
+    val hmacProvider = Mac.getInstance("HmacSHA256")
+    val secretKey = SecretKeySpec(key, "HmacSHA256")
+    hmacProvider.init(secretKey)
+    return hmacProvider.doFinal(message)
+
+}
 
 // Temporary Exposure Keys are generated every 24 hours
 // We obtain TEKs from the server, as well as their associated EN interval number

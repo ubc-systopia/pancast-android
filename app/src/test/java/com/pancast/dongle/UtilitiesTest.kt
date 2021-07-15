@@ -1,6 +1,7 @@
 package com.pancast.dongle
 
 import com.pancast.dongle.fragments.home.decodeData
+import com.pancast.dongle.gaen.computeHMACAuthenticationString
 import com.pancast.dongle.gaen.getRPIsFromTEK
 import com.pancast.dongle.utilities.byteArrayOfInts
 import com.pancast.dongle.utilities.getMinutesSinceLinuxEpoch
@@ -45,5 +46,11 @@ class UtilitiesTest {
         for (rpi in RPIs) {
             assertEquals(16, rpi.size)
         }
+    }
+
+    @Test
+    fun test_hmac_generation() {
+        val hmac = computeHMACAuthenticationString()
+        assertEquals(32, hmac.size)
     }
 }
