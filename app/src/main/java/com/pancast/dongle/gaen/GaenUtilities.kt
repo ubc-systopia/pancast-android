@@ -1,6 +1,5 @@
 package com.pancast.dongle.gaen
 
-import android.util.Log
 import com.pancast.dongle.utilities.Constants.HMAC_KEY
 import com.pancast.dongle.utilities.Constants.MCC_CODE
 import com.pancast.dongle.utilities.byteArrayOfInts
@@ -24,7 +23,6 @@ fun HMAC(message: ByteArray, key: ByteArray): ByteArray {
     val secretKey = SecretKeySpec(key, "HmacSHA256")
     hmacProvider.init(secretKey)
     return hmacProvider.doFinal(message)
-
 }
 
 // Temporary Exposure Keys are generated every 24 hours

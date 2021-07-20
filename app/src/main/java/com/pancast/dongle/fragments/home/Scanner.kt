@@ -14,7 +14,9 @@ import com.pancast.dongle.fragments.telemetry.PowerGraph
 class Scanner(entryHandler: EntryHandler, gaenHandler: GAENHandler) {
     // telemetry fields
     private var lastScansBuffer: MutableList<Int> = mutableListOf()
-    private val numScansBeforeLogging: Int = 10
+    private var lastScansMax: Int = -128
+    private var lastScansMin: Int = 127
+    private val numScansBeforeLogging: Int = 50
 
     private val mBlueAdapter: BluetoothAdapter = BluetoothAdapter.getDefaultAdapter()
     private val mBluetoothLeScanner: BluetoothLeScanner =
@@ -28,9 +30,18 @@ class Scanner(entryHandler: EntryHandler, gaenHandler: GAENHandler) {
             if (entryHandler.isOfType(data)) {
                 // BEGIN TELEMETRY
                 lastScansBuffer.add(result.rssi)
+                if (result.rssi < lastScansMin) {
+                    lastScansMin = result.rssi
+                }
+                if (result.rssi > lastScansMax) {
+                    lastScansMax = result.rssi
+                }
                 if (lastScansBuffer.size >= numScansBeforeLogging) {
-                    PowerGraph.updateGraph(lastScansBuffer.average())
+                    val dataTuple = Triple(lastScansBuffer.average(), lastScansMin, lastScansMax)
+                    PowerGraph.updateGraph(dataTuple)
                     lastScansBuffer = mutableListOf()
+                    lastScansMin = 127
+                    lastScansMax = -128
                 }
                 // END TELEMETRY
                 entryHandler.handlePayload(data, result.rssi)

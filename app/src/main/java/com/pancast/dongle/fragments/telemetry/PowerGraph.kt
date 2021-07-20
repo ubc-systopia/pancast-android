@@ -1,6 +1,5 @@
 package com.pancast.dongle.fragments.telemetry
 
-import android.util.Log
 import android.view.View
 import com.jjoe64.graphview.GraphView
 import com.jjoe64.graphview.series.DataPoint
@@ -8,8 +7,10 @@ import com.jjoe64.graphview.series.LineGraphSeries
 import com.pancast.dongle.R
 
 class PowerGraph(viewGraph: GraphView) {
-    var data: MutableList<Double> = mutableListOf()
-    var series: LineGraphSeries<DataPoint> = LineGraphSeries()
+    var data: MutableList<Triple<Double, Int, Int>> = mutableListOf()
+    var averageSeries: LineGraphSeries<DataPoint> = LineGraphSeries()
+    var minSeries: LineGraphSeries<DataPoint> = LineGraphSeries()
+    var maxSeries: LineGraphSeries<DataPoint> = LineGraphSeries()
     private val plot: GraphView = viewGraph
 
     init {
@@ -25,26 +26,22 @@ class PowerGraph(viewGraph: GraphView) {
         plot.viewport.isYAxisBoundsManual = true;
         plot.viewport.isXAxisBoundsManual = true;
 
-        plot.addSeries(series)
+        plot.addSeries(averageSeries)
+        plot.addSeries(minSeries)
+        plot.addSeries(maxSeries)
     }
 
     fun createPlot() {
         val size = data.size
         if (size != 0) {
-            series.appendData(DataPoint(size - 1.0, data[size - 1]), true, 1000)
+            averageSeries.appendData(DataPoint(size - 1.0, data[size - 1].first), true, 1000)
+            minSeries.appendData(DataPoint(size - 1.0, data[size - 1].second.toDouble()), true, 1000)
+            maxSeries.appendData(DataPoint(size - 1.0, data[size - 1].third.toDouble()), true, 1000)
         }
         plot.removeAllSeries()
-        plot.addSeries(series)
-//        series = LineGraphSeries()
-//        for (i in data.indices) {
-//            try {
-//                val x: Double = i.toDouble()
-//                val y: Double = data[i]
-//                series.appendData(DataPoint(x, y), true, 1000)
-//            } catch (e: Exception) {
-//                Log.e("TELEMETRY", "Plotting failed")
-//            }
-//        }
+        plot.addSeries(averageSeries)
+        plot.addSeries(minSeries)
+        plot.addSeries(maxSeries)
     }
 
     companion object {
@@ -64,7 +61,7 @@ class PowerGraph(viewGraph: GraphView) {
             }
         }
 
-        fun updateGraph(data: Double) {
+        fun updateGraph(data: Triple<Double, Int, Int>) {
             val graph = INSTANCE
             if (graph != null) {
                 synchronized(this) {
@@ -74,6 +71,4 @@ class PowerGraph(viewGraph: GraphView) {
             }
         }
     }
-
-
 }
