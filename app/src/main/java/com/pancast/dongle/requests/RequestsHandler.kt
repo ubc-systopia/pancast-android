@@ -98,7 +98,10 @@ class RequestsHandler {
                             "\"BeaconClock\": %s," +
                             "\"BeaconId\":    %s," +
                             "\"LocationID\":  %s" +
-                            "}", Base64.getEncoder().encodeToString(en.ephemeralID.decodeHex()), en.dongleTime, en.beaconTime, en.beaconID, en.locationID
+                    "}",
+                    Base64.getEncoder().encodeToString(en.ephemeralID.decodeHex()),
+                    en.dongleTime, en.beaconTime, en.beaconID, en.locationID
+                    /* TODO: upload rssi value too */
                 )
             )
             if (i < data.size - 1) {

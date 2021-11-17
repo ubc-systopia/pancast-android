@@ -9,7 +9,7 @@ import androidx.room.RoomDatabase
 // remember to increment the version whenever we change the schema
 
 // uses the singleton pattern
-@Database(entities = [Entry::class, ExposureKey::class], version = 4, exportSchema = false)
+@Database(entities = [Entry::class, ExposureKey::class], version = 5)
 abstract class PancastDatabase : RoomDatabase() {
     abstract fun entryDao(): EntryDao
     abstract fun exposureKeyDao(): ExposureKeyDao
@@ -27,7 +27,8 @@ abstract class PancastDatabase : RoomDatabase() {
                 val instance = Room.databaseBuilder(
                     context.applicationContext,
                     PancastDatabase::class.java, "pancast-android")
-                    .fallbackToDestructiveMigration() // if we change the schema, all data will be lost
+                    //.fallbackToDestructiveMigration() // if we change the schema, all data will be lost
+                    .addMigrations(MIGRATION_4_5)
                     .build()
                 INSTANCE = instance
                 return instance
@@ -35,5 +36,3 @@ abstract class PancastDatabase : RoomDatabase() {
         }
     }
 }
-
-

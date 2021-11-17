@@ -43,6 +43,16 @@
         app:layout_constraintStart_toStartOf="@+id/item_beacon_id"
         app:layout_constraintTop_toBottomOf="@+id/item_beacon_id" />
 
+    <TextView
+        android:id="@+id/item_rssi"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginStart="52dp"
+        android:layout_marginTop="4dp"
+        android:text="RSSI: -72dbm"
+        app:layout_constraintStart_toEndOf="@+id/item_location_id"
+        app:layout_constraintTop_toBottomOf="@+id/item_date" />
+
     <CheckBox
         android:id="@+id/excludeCheckBox"
         android:layout_width="wrap_content"

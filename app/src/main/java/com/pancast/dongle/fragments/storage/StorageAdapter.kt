@@ -29,6 +29,7 @@ class StorageAdapter: RecyclerView.Adapter<StorageAdapter.EntryViewHolder>() {
         holder.itemView.findViewById<TextView>(R.id.item_beacon_id).text = currentItem.entry.beaconID.toString()
         holder.itemView.findViewById<TextView>(R.id.item_date).text = minutesIntoTime(currentItem.entry.dongleTime)
         holder.itemView.findViewById<TextView>(R.id.item_location_id).text = currentItem.entry.locationID.toString()
+        holder.itemView.findViewById<TextView>(R.id.item_rssi).text = currentItem.entry.rssi.toString()
         val checkBox = holder.itemView.findViewById<CheckBox>(R.id.excludeCheckBox)
         checkBox.setOnClickListener {
             currentItem.switchState()

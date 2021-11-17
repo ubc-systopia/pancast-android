@@ -24,7 +24,7 @@ class EntryHandler(ctx: Context): PacketHandler {
     override fun handlePayload(payload: ByteArray, rssi: Int) {
         val truncatedData = payload.copyOfRange(0, 30)
         val rearrangedPayload = rearrangeData(truncatedData)
-        logEncounter(rearrangedPayload)
+        logEncounter(rearrangedPayload, rssi)
     }
 
     override fun isOfType(payload: ByteArray): Boolean {
@@ -36,7 +36,7 @@ class EntryHandler(ctx: Context): PacketHandler {
         }
     }
 
-    private fun logEncounter(input: ByteArray) {
+    private fun logEncounter(input: ByteArray, rssi: Int) {
         count.value = count.value?.plus(1)
         // need some form of expiry mechanism for old ephemeral IDs within the map. cron job to remove
         // old entries from the cache?
@@ -47,7 +47,8 @@ class EntryHandler(ctx: Context): PacketHandler {
             val oldTime = ephemeralIDCache[decoded.ephemeralID.toHexString()]
             val newTime = getMinutesSinceLinuxEpoch()
             if (newTime - oldTime!! >= Constants.ENCOUNTER_TIME_THRESHOLD) {
-                val entry = Entry(decoded.ephemeralID.toHexString(), decoded.beaconID, decoded.locationID, decoded.beaconTime, oldTime.toInt())
+                val entry = Entry(decoded.ephemeralID.toHexString(), decoded.beaconID,
+                    decoded.locationID, decoded.beaconTime, oldTime.toInt(), rssi)
                 thread(start=true) {
                     mEntryRepository.addEntry(entry)
                 }
