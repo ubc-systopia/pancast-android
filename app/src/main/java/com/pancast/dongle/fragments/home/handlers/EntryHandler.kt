@@ -1,14 +1,12 @@
 package com.pancast.dongle.fragments.home
 
 import android.content.Context
+import android.util.Log
 import androidx.lifecycle.MutableLiveData
+import com.pancast.dongle.MainApplication.Companion.APP_START_TIME
 import com.pancast.dongle.data.*
 import com.pancast.dongle.fragments.home.handlers.PacketHandler
-import com.pancast.dongle.utilities.toHexString
-import com.pancast.dongle.utilities.Constants
-import com.pancast.dongle.utilities.MaxBroadcastSize
-import com.pancast.dongle.utilities.byteArrayOfInts
-import com.pancast.dongle.utilities.getMinutesSinceLinuxEpoch
+import com.pancast.dongle.utilities.*
 import java.nio.ByteBuffer
 import java.nio.ByteOrder
 import kotlin.concurrent.thread
@@ -47,6 +45,13 @@ class EntryHandler(ctx: Context): PacketHandler {
             val oldTime = ephemeralIDCache[decoded.ephemeralID.toHexString()]
             val newTime = getMinutesSinceLinuxEpoch()
             if (newTime - oldTime!! >= Constants.ENCOUNTER_TIME_THRESHOLD) {
+                /* // == use only for debugging ===
+                val relTime = (oldTime - APP_START_TIME).toInt()
+                val relMin = minutesIntoTime(relTime)
+                Log.w("SC", "[$relMin] " + decoded.ephemeralID.toHexString() +
+                        " ${decoded.beaconID} ${decoded.locationID} ${decoded.beaconTime} $rssi")
+                */
+
                 val entry = Entry(decoded.ephemeralID.toHexString(), decoded.beaconID,
                     decoded.locationID, decoded.beaconTime, oldTime.toInt(), rssi)
                 thread(start=true) {

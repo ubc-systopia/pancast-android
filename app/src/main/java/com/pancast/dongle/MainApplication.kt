@@ -5,6 +5,7 @@ import android.app.NotificationChannel
 import android.app.NotificationManager
 import android.os.Build
 import com.pancast.dongle.utilities.Constants.SERVICE_CHANNEL_ID
+import com.pancast.dongle.utilities.getMinutesSinceLinuxEpoch
 
 class MainApplication: Application() {
     override fun onCreate() {
@@ -23,5 +24,9 @@ class MainApplication: Application() {
             notificationManager.createNotificationChannel(serviceChannel)
         }
 
+    }
+
+    companion object {
+        val APP_START_TIME = getMinutesSinceLinuxEpoch()
     }
 }

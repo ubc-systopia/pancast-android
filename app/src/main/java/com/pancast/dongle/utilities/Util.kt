@@ -22,6 +22,12 @@ fun minutesIntoDateTime(minutes: Int): String {
     return format.format(date)
 }
 
+fun minutesIntoTime(minutes: Int): String {
+    val millisecondsSinceEpoch = minutes.toLong() * MILLISECONDS_IN_SECOND * SECONDS_IN_MINUTE
+    val format = SimpleDateFormat("hh:mm:ss.SSS", Locale.CANADA)
+    val date = Date(millisecondsSinceEpoch)
+    return format.format(date)
+}
 fun byteArrayOfInts(vararg ints: Int) = ByteArray(ints.size) { pos -> ints[pos].toByte() }
 
 fun showAlertDialog(ctx: Context, title: String, description: String) {
