@@ -12,7 +12,7 @@
         android:layout_marginBottom="16dp"
         android:layout_marginLeft="16dp"
         android:text="Del All"
-        app:layout_constraintBottom_toBottomOf="@+id/recyclerView"
+        app:layout_constraintTop_toBottomOf="@+id/recyclerView"
         app:layout_constraintStart_toStartOf="parent" />
 
     <Button
@@ -23,7 +23,7 @@
         android:layout_marginEnd="10dp"
         android:layout_marginBottom="16dp"
         android:text="Del Expired"
-        app:layout_constraintBottom_toBottomOf="@+id/recyclerView"
+        app:layout_constraintTop_toBottomOf="@+id/recyclerView"
         app:layout_constraintEnd_toStartOf="@id/uploadBtn"
         app:layout_constraintStart_toEndOf="@id/deleteBtn" />
 
@@ -34,7 +34,7 @@
         android:layout_marginEnd="16dp"
         android:layout_marginBottom="16dp"
         android:text="Upload All"
-        app:layout_constraintBottom_toBottomOf="@+id/recyclerView"
+        app:layout_constraintTop_toBottomOf="@+id/recyclerView"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toEndOf="@+id/deleteBtnHist" />
 
@@ -42,10 +42,11 @@
         android:id="@+id/recyclerView"
         android:layout_width="match_parent"
         android:layout_height="match_parent"
+        android:layout_marginBottom="64dp"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintHorizontal_bias="0.0"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toTopOf="parent"
-        app:layout_constraintBottom_toTopOf="@id/deleteBtn"/>
+        app:layout_constraintBottom_toTopOf="@id/deleteBtn" />
 
 </androidx.constraintlayout.widget.ConstraintLayout>
