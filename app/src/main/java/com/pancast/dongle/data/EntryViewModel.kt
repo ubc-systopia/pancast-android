@@ -34,4 +34,10 @@ class EntryViewModel(application: Application): AndroidViewModel(application) {
             repository.deleteAllEntries()
         }
     }
+
+    fun deleteOneEntry(ephID: String, dongleTime: Int, rssi: Int) {
+        viewModelScope.launch(Dispatchers.IO) {
+            repository.deleteOneEntry(ephID, dongleTime, rssi)
+        }
+    }
 }

@@ -30,4 +30,9 @@ interface EntryDao {
     // delete all entries
     @Query("DELETE FROM entry")
     fun deleteAll()
+
+    // delete entry with matching ephID
+    @Query("DELETE FROM entry WHERE ephemeralID = :ephID AND dongleTime = :dongleTime" +
+            " AND rssi = :rssi")
+    fun deleteOneEntry(ephID: String, dongleTime: Int, rssi: Int)
 }

@@ -26,4 +26,9 @@ class EntryRepository(private val entryDao: EntryDao) {
     fun deleteAllEntries() {
         entryDao.deleteAll()
     }
+
+    fun deleteOneEntry(ephID: String, dongleTime: Int, rssi: Int) {
+        entryDao.deleteOneEntry(ephID, dongleTime, rssi)
+        entries = entryDao.getAll(0)
+    }
 }

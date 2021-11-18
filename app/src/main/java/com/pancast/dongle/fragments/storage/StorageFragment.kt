@@ -13,7 +13,10 @@ import androidx.navigation.fragment.findNavController
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
 import com.pancast.dongle.R
+import com.pancast.dongle.data.Entry
+import com.pancast.dongle.data.EntryRepository
 import com.pancast.dongle.data.EntryViewModel
+import com.pancast.dongle.data.PancastDatabase
 import com.pancast.dongle.fragments.upload.UploadFragmentDirections
 
 private const val ARG_PARAM1 = "param1"
@@ -51,7 +54,14 @@ class StorageFragment : Fragment() {
 
         val mDeleteBtn: Button = view.findViewById(R.id.deleteBtn)
         mDeleteBtn.setOnClickListener {
+//            var checkedList = adapter.getTrueState()
+//            if (checkedList.size == 0 || checkedList.size == adapter.itemCount) {
             mEntryViewModel.deleteAllEntries()
+//            } else {
+//                for (e in checkedList) {
+//                    mEntryViewModel.deleteOneEntry(e.ephemeralID, e.dongleTime, e.rssi)
+//                }
+            }
         }
 
         val mDeleteBtnHist: Button = view.findViewById(R.id.deleteBtnHist)

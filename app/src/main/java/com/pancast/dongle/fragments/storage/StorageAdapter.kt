@@ -54,6 +54,9 @@ class StorageAdapter: RecyclerView.Adapter<StorageAdapter.EntryViewHolder>() {
         return entryList.filter{!it.isChecked}.map{ it.entry }
     }
 
+    fun getTrueState(): List<Entry> {
+        return entryList.filter { it.isChecked }.map { it.entry }
+    }
     override fun getItemCount(): Int {
         return entryList.size
     }
