@@ -15,7 +15,7 @@ fun getMinutesSinceLinuxEpoch(): Long {
     return System.currentTimeMillis() / (MILLISECONDS_IN_SECOND * SECONDS_IN_MINUTE)
 }
 
-fun minutesIntoTime(minutes: Int): String {
+fun minutesIntoDateTime(minutes: Int): String {
     val millisecondsSinceEpoch = minutes.toLong() * MILLISECONDS_IN_SECOND * SECONDS_IN_MINUTE
     val format = SimpleDateFormat("yyyy-MM-dd, hh:mm", Locale.CANADA)
     val date = Date(millisecondsSinceEpoch)

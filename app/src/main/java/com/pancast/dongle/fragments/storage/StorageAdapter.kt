@@ -9,6 +9,7 @@ import android.widget.TextView
 import androidx.recyclerview.widget.RecyclerView
 import com.pancast.dongle.R
 import com.pancast.dongle.data.Entry
+import com.pancast.dongle.utilities.minutesIntoDateTime
 import com.pancast.dongle.utilities.minutesIntoTime
 
 class StorageAdapter: RecyclerView.Adapter<StorageAdapter.EntryViewHolder>() {
@@ -27,7 +28,7 @@ class StorageAdapter: RecyclerView.Adapter<StorageAdapter.EntryViewHolder>() {
         val currentItem = entryList[pos]
         holder.itemView.findViewById<TextView>(R.id.item_eph_id).text = currentItem.entry.ephemeralID
         holder.itemView.findViewById<TextView>(R.id.item_beacon_id).text = currentItem.entry.beaconID.toString()
-        holder.itemView.findViewById<TextView>(R.id.item_date).text = minutesIntoTime(currentItem.entry.dongleTime)
+        holder.itemView.findViewById<TextView>(R.id.item_date).text = minutesIntoDateTime(currentItem.entry.dongleTime)
         holder.itemView.findViewById<TextView>(R.id.item_location_id).text = currentItem.entry.locationID.toString()
         holder.itemView.findViewById<TextView>(R.id.item_rssi).text = currentItem.entry.rssi.toString()
         val checkBox = holder.itemView.findViewById<CheckBox>(R.id.excludeCheckBox)
