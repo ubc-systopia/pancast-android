@@ -22,4 +22,8 @@ class EntryRepository(private val entryDao: EntryDao) {
         val currTime: Long = 0
         entryDao.delete(currTime)
     }
+
+    fun deleteAllEntries() {
+        entryDao.deleteAll()
+    }
 }

@@ -26,4 +26,8 @@ interface EntryDao {
     // delete all entries older than 14 days old
     @Query("DELETE FROM entry WHERE (:currTime) - dongleTime >= $MINUTES_IN_WINDOW")
     fun delete(currTime: Long)
+
+    // delete all entries
+    @Query("DELETE FROM entry")
+    fun deleteAll()
 }

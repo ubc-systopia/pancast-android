@@ -28,4 +28,10 @@ class EntryViewModel(application: Application): AndroidViewModel(application) {
             repository.deleteEntries()
         }
     }
+
+    fun deleteAllEntries() {
+        viewModelScope.launch(Dispatchers.IO) {
+            repository.deleteAllEntries()
+        }
+    }
 }

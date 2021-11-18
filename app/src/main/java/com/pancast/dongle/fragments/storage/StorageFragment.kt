@@ -51,9 +51,13 @@ class StorageFragment : Fragment() {
 
         val mDeleteBtn: Button = view.findViewById(R.id.deleteBtn)
         mDeleteBtn.setOnClickListener {
-            mEntryViewModel.deleteOldEntries()
+            mEntryViewModel.deleteAllEntries()
         }
 
+        val mDeleteBtnHist: Button = view.findViewById(R.id.deleteBtnHist)
+        mDeleteBtnHist.setOnClickListener {
+            mEntryViewModel.deleteOldEntries()
+        }
 
         return view
     }
