@@ -140,10 +140,13 @@ class HomeFragment : Fragment() {
             if (riskBroadcast != null) {
                 val cf = CuckooFilter(riskBroadcast)
                 val entries = mEntryViewModel.repository.getAllEntries()
+                val numEntries = entries.size
+                Log.w("CF", "#entries: $numEntries")
                 for (entry in entries) {
                     val entryEphID =
                         entry.ephemeralID + "00" // because current ephIDs are 14 bytes, append extra null byte
                     val result = cf.lookupItem(entryEphID.decodeHex())
+//                    Log.w("CF", "$entryEphID, $result")
                     if (result) {
                         val count = mEntryViewModel.repository.getNumEntries(entry.ephemeralID)
                         mHandler.post {

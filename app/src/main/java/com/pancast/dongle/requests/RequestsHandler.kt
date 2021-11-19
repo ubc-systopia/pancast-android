@@ -1,6 +1,7 @@
 package com.pancast.dongle.requests
 
 import android.os.Build
+import android.util.Log
 import androidx.annotation.RequiresApi
 import com.pancast.dongle.data.Entry
 import com.pancast.dongle.gaen.computeHMACAuthenticationString
@@ -37,6 +38,9 @@ class RequestsHandler {
             .url(url)
             .post(reqBody)
             .build()
+//        val blen = body.length
+//        Log.w("R1", "$url, $contentType, $blen")
+//        Log.w("R2", "$body")
         val response = client.newCall(request).execute()
         return if (response.body != null) {
             response.body!!.string()
@@ -60,6 +64,7 @@ class RequestsHandler {
             .url(url)
             .get()
             .build()
+        Log.w("B", "$request")
         client.newCall(request).execute().use { response -> return response.body?.bytes() }
     }
 
