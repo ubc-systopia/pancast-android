@@ -1,26 +1,17 @@
 package com.pancast.dongle.fragments.storage
 
 import android.os.Bundle
-import android.util.Log
 import androidx.fragment.app.Fragment
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import android.widget.Button
-import androidx.lifecycle.Observer
 import androidx.lifecycle.ViewModelProvider
 import androidx.navigation.fragment.findNavController
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
 import com.pancast.dongle.R
-import com.pancast.dongle.data.Entry
-import com.pancast.dongle.data.EntryRepository
 import com.pancast.dongle.data.EntryViewModel
-import com.pancast.dongle.data.PancastDatabase
-import com.pancast.dongle.fragments.upload.UploadFragmentDirections
-
-private const val ARG_PARAM1 = "param1"
-private const val ARG_PARAM2 = "param2"
 
 class StorageFragment : Fragment() {
 
@@ -61,7 +52,7 @@ class StorageFragment : Fragment() {
 //                for (e in checkedList) {
 //                    mEntryViewModel.deleteOneEntry(e.ephemeralID, e.dongleTime, e.rssi)
 //                }
-            }
+//            }
         }
 
         val mDeleteBtnHist: Button = view.findViewById(R.id.deleteBtnHist)
