@@ -53,7 +53,7 @@ dependencies {
     // telemetry
     implementation 'com.jjoe64:graphview:4.2.2'
     // protocol buffer
-    implementation "com.google.protobuf:protobuf-java:3.10.0"
+    implementation 'com.google.protobuf:protobuf-java:4.0.0-rc-2'
 
     def room_version = "2.3.0"
 

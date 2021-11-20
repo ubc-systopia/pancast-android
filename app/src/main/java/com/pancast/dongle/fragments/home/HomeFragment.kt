@@ -141,21 +141,30 @@ class HomeFragment : Fragment() {
                 val cf = CuckooFilter(riskBroadcast)
                 val entries = mEntryViewModel.repository.getAllEntries()
                 val numEntries = entries.size
-                Log.w("CF", "#entries: $numEntries")
+                val rbLen = riskBroadcast.size
+                Log.w("CF", "download size: $rbLen, #entries: $numEntries")
+                var numMatchEntries = 0
+                var numMatchBeacons = 0
+                var matchBeacons: MutableList<Long> = mutableListOf()
                 for (entry in entries) {
                     val entryEphID =
                         entry.ephemeralID + "00" // because current ephIDs are 14 bytes, append extra null byte
                     val result = cf.lookupItem(entryEphID.decodeHex())
-//                    Log.w("CF", "$entryEphID, $result")
-                    if (result) {
-                        val count = mEntryViewModel.repository.getNumEntries(entry.ephemeralID)
-                        mHandler.post {
-                            showAlertDialog(
-                                requireContext(),
-                                "Exposure: $entryEphID",
-                                "You may have been exposed. You have encountered an infected beacon $count times."
-                            )
-                        }
+                    if (!result) {
+                        continue
+                    }
+                    numMatchEntries += 1
+                    if (matchBeacons.contains(entry.locationID) == false) {
+                        matchBeacons += entry.locationID
+                    }
+                }
+                if (numMatchEntries > 0) {
+                    numMatchBeacons = matchBeacons.size
+                    mHandler.post {
+                        showAlertDialog(requireContext(), "Exposure: ",
+                            "You may have been infected. You have encountered " +
+                            "$numMatchBeacons infected beacons and exposed $numMatchEntries times."
+                        )
                     }
                 }
             }
