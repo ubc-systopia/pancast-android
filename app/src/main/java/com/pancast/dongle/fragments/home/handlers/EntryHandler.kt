@@ -20,7 +20,7 @@ class EntryHandler(ctx: Context): PacketHandler {
     var count: MutableLiveData<Int> = MutableLiveData(0)
 
     override fun handlePayload(payload: ByteArray, rssi: Int) {
-        val truncatedData = payload.copyOfRange(0, 30)
+        val truncatedData = payload.copyOfRange(0, MaxBroadcastSize)
         val rearrangedPayload = rearrangeData(truncatedData)
         logEncounter(rearrangedPayload, rssi)
     }
@@ -106,7 +106,7 @@ constructor(val beaconTime: Int, val beaconID: Int, val locationID: Long, val ep
 }
 
 fun decodeData(d: ByteArray): DecodedData {
-    if (d.size != 30) {
+    if (d.size != MaxBroadcastSize) {
         throw IllegalArgumentException("size is not correct")
     }
     val beaconTime = ByteBuffer.wrap(d.copyOfRange(0, 4)).order(ByteOrder.LITTLE_ENDIAN).int
