@@ -29,8 +29,7 @@ class EntryHandler(ctx: Context): PacketHandler {
         return if (payload.size < 30) {
             false
         } else {
-            val truncatedData = payload.copyOfRange(0, 30)
-            isPancastData(truncatedData)
+            isPancastData(payload)
         }
     }
 
@@ -48,8 +47,9 @@ class EntryHandler(ctx: Context): PacketHandler {
                 /* // == use only for debugging ===
                 val relTime = (oldTime - APP_START_TIME).toInt()
                 val relMin = minutesIntoTime(relTime)
+                val bIdHex = Integer.toString(decoded.beaconID, 16)
                 Log.w("SC", "[$relMin] " + decoded.ephemeralID.toHexString() +
-                        " ${decoded.beaconID} ${decoded.locationID} ${decoded.beaconTime} $rssi")
+                        " 0x${bIdHex} ${decoded.locationID} ${decoded.beaconTime} $rssi")
                 */
 
                 val entry = Entry(decoded.ephemeralID.toHexString(), decoded.beaconID,
