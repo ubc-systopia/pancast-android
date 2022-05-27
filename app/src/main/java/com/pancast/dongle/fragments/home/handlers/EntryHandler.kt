@@ -7,12 +7,14 @@ import com.pancast.dongle.MainApplication.Companion.APP_START_TIME
 import com.pancast.dongle.data.*
 import com.pancast.dongle.fragments.home.handlers.PacketHandler
 import com.pancast.dongle.utilities.*
+import com.pancast.dongle.utilities.Constants.MaxBroadcastSize
+import okhttp3.internal.toHexString
 import java.nio.ByteBuffer
 import java.nio.ByteOrder
 import kotlin.concurrent.thread
 
 class EntryHandler(ctx: Context): PacketHandler {
-    private val ephemeralIDCache: MutableMap<String, Long> = mutableMapOf()
+//    private val ephemeralIDCache: MutableMap<String, Long> = mutableMapOf()
     private val mEntryDao: EntryDao = PancastDatabase.getDatabase(ctx).entryDao()
     private val mEntryRepository = EntryRepository(mEntryDao)
 
@@ -90,7 +92,6 @@ class EntryHandler(ctx: Context): PacketHandler {
                 ephemeralIDCache[decoded.ephemeralID.toHexString()] = newTime
             }
         }
-
          */
     }
 
