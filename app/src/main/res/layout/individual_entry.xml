@@ -10,10 +10,20 @@
         android:id="@+id/item_date"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:layout_marginStart="20dp"
-        android:text="@string/dummy_time"
+        android:layout_marginStart="10dp"
+        android:text="[D] 2022-05-26, 18:55"
         android:textSize="14sp"
         app:layout_constraintStart_toEndOf="@+id/item_beacon_id"
+        app:layout_constraintTop_toTopOf="@+id/item_beacon_id" />
+
+    <TextView
+        android:id="@+id/item_dongle_interval"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginStart="10dp"
+        android:text="10 min"
+        android:textSize="14sp"
+        app:layout_constraintStart_toEndOf="@+id/item_date"
         app:layout_constraintTop_toTopOf="@+id/item_beacon_id" />
 
     <TextView
@@ -44,14 +54,34 @@
         app:layout_constraintTop_toBottomOf="@+id/item_beacon_id" />
 
     <TextView
+        android:id="@+id/item_beacon_time"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginStart="10dp"
+        android:text="[B] 15671"
+        android:textSize="14sp"
+        app:layout_constraintStart_toEndOf="@+id/item_location_id"
+        app:layout_constraintTop_toTopOf="@+id/item_location_id" />
+
+    <TextView
+        android:id="@+id/item_beacon_interval"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginStart="10dp"
+        android:text="10 min"
+        android:textSize="14sp"
+        app:layout_constraintStart_toEndOf="@+id/item_beacon_time"
+        app:layout_constraintTop_toTopOf="@+id/item_location_id" />
+
+    <TextView
         android:id="@+id/item_rssi"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:layout_marginStart="52dp"
-        android:layout_marginTop="4dp"
-        android:text="RSSI: -72dbm"
-        app:layout_constraintStart_toEndOf="@+id/item_location_id"
-        app:layout_constraintTop_toBottomOf="@+id/item_date" />
+        android:layout_marginStart="20dp"
+        android:text="RSSI: -72 dbm"
+        android:textSize="14sp"
+        app:layout_constraintStart_toEndOf="@+id/item_beacon_interval"
+        app:layout_constraintTop_toTopOf="@+id/item_location_id" />
 
     <CheckBox
         android:id="@+id/excludeCheckBox"

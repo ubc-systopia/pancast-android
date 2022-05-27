@@ -10,8 +10,16 @@ class EntryRepository(private val entryDao: EntryDao) {
         entryDao.insert(entry)
     }
 
+    fun updateEntry(entry: Entry) {
+        entryDao.update(entry.ephemeralID, entry.beaconTimeInterval, entry.dongleTimeInterval)
+    }
+
     fun getAllEntries(): List<Entry> {
         return entryDao.getAllSynchronously(0)
+    }
+
+    fun getEntry(ephID: String): Entry {
+        return entryDao.getEntry(ephID)
     }
 
     fun getNumEntries(ephID: String): Int {

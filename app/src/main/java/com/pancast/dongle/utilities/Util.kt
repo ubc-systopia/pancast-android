@@ -8,9 +8,6 @@ import com.pancast.dongle.utilities.Constants.SECONDS_IN_MINUTE
 import java.text.SimpleDateFormat
 import java.util.*
 
-
-const val MaxBroadcastSize = 31
-
 fun getMinutesSinceLinuxEpoch(): Long {
     return System.currentTimeMillis() / (MILLISECONDS_IN_SECOND * SECONDS_IN_MINUTE)
 }

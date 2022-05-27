@@ -38,6 +38,36 @@ class EntryHandler(ctx: Context): PacketHandler {
         // need some form of expiry mechanism for old ephemeral IDs within the map. cron job to remove
         // old entries from the cache?
         val decoded: DecodedData = decodeData(input)
+        val relTime = (getMinutesSinceLinuxEpoch().toInt() - APP_START_TIME.toInt())
+        val relMin = minutesIntoTime(relTime)
+        val bIdHex = decoded.beaconID.toHexString()
+
+        thread(start=true) {
+            val numEntries = mEntryRepository.getNumEntries(decoded.ephemeralID.toHexString())
+
+            if (numEntries == 0) {
+                val entry = Entry(decoded.ephemeralID.toHexString(), decoded.beaconID,
+                    decoded.locationID, decoded.beaconTime, 1,
+                    getMinutesSinceLinuxEpoch().toInt(), 1, rssi)
+                mEntryRepository.addEntry(entry)
+            } else if (numEntries == 1) {
+                val entry = mEntryRepository.getEntry(decoded.ephemeralID.toHexString())
+                val oldBeaconTime = entry.beaconTime
+                val oldDongleTime = entry.dongleTime
+                val newBeaconTime = decoded.beaconTime
+                val newDongleTime = getMinutesSinceLinuxEpoch().toInt()
+                entry.beaconTimeInterval = newBeaconTime - oldBeaconTime + 1
+                entry.dongleTimeInterval = newDongleTime - oldDongleTime
+                mEntryRepository.updateEntry(entry)
+            } else {
+                // we should not be reaching here, maybe raise an exception
+                Log.w("SC", "[$relMin] DUPLICATE EPHIDs: " + numEntries +
+                        " for" + decoded.ephemeralID.toHexString() +
+                        " 0x${bIdHex} ${decoded.locationID} ${decoded.beaconTime} $rssi")
+            }
+        }
+
+        /*
         if (!ephemeralIDCache.containsKey(decoded.ephemeralID.toHexString())) {
             ephemeralIDCache[decoded.ephemeralID.toHexString()] = getMinutesSinceLinuxEpoch()
         } else {
@@ -60,6 +90,8 @@ class EntryHandler(ctx: Context): PacketHandler {
                 ephemeralIDCache[decoded.ephemeralID.toHexString()] = newTime
             }
         }
+
+         */
     }
 
     companion object {

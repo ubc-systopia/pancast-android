@@ -23,6 +23,18 @@ class EntryViewModel(application: Application): AndroidViewModel(application) {
         }
     }
 
+    fun getEntry(ephID: String) {
+        viewModelScope.launch(Dispatchers.IO) {
+            repository.getEntry(ephID)
+        }
+    }
+
+    fun getNumEntries(ephID: String) {
+        viewModelScope.launch(Dispatchers.IO) {
+            repository.getNumEntries(ephID)
+        }
+    }
+
     fun deleteOldEntries() {
         viewModelScope.launch(Dispatchers.IO) {
             repository.deleteEntries()

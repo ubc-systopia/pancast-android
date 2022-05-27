@@ -19,9 +19,17 @@ interface EntryDao {
     @Query("SELECT COUNT(*) FROM entry WHERE ephemeralID = :ephID")
     fun getNumEntries(ephID: String): Int
 
+    @Query("SELECT * FROM entry WHERE ephemeralID = :ephID")
+    fun getEntry(ephID: String): Entry
+
     // insert new entry
     @Insert(onConflict = OnConflictStrategy.IGNORE)
     fun insert(entry: Entry)
+
+    @Query("UPDATE entry SET " +
+            "beaconTimeInterval = :beaconTimeInterval, dongleTimeInterval = :dongleTimeInterval " +
+            "WHERE ephemeralID = :ephID")
+    fun update(ephID: String, beaconTimeInterval: Int, dongleTimeInterval: Int)
 
     // delete all entries older than 14 days old
     @Query("DELETE FROM entry WHERE (:currTime) - dongleTime >= $MINUTES_IN_WINDOW")

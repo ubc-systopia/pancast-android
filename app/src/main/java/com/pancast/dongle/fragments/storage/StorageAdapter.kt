@@ -26,11 +26,22 @@ class StorageAdapter: RecyclerView.Adapter<StorageAdapter.EntryViewHolder>() {
 
     override fun onBindViewHolder(holder: EntryViewHolder, pos: Int) {
         val currentItem = entryList[pos]
-        holder.itemView.findViewById<TextView>(R.id.item_eph_id).text = currentItem.entry.ephemeralID
-        holder.itemView.findViewById<TextView>(R.id.item_beacon_id).text = currentItem.entry.beaconID.toString()
-        holder.itemView.findViewById<TextView>(R.id.item_date).text = minutesIntoDateTime(currentItem.entry.dongleTime)
-        holder.itemView.findViewById<TextView>(R.id.item_location_id).text = currentItem.entry.locationID.toString()
-        holder.itemView.findViewById<TextView>(R.id.item_rssi).text = currentItem.entry.rssi.toString()
+        holder.itemView.findViewById<TextView>(R.id.item_eph_id).text =
+            currentItem.entry.ephemeralID
+        holder.itemView.findViewById<TextView>(R.id.item_beacon_id).text =
+            currentItem.entry.beaconID.toString()
+        holder.itemView.findViewById<TextView>(R.id.item_date).text =
+            "[D] " + minutesIntoDateTime(currentItem.entry.dongleTime)
+        holder.itemView.findViewById<TextView>(R.id.item_dongle_interval).text =
+            currentItem.entry.dongleTimeInterval.toString() + " min"
+        holder.itemView.findViewById<TextView>(R.id.item_beacon_time).text =
+            "[B] " + currentItem.entry.beaconTime
+        holder.itemView.findViewById<TextView>(R.id.item_beacon_interval).text =
+            currentItem.entry.beaconTimeInterval.toString() + " min"
+        holder.itemView.findViewById<TextView>(R.id.item_location_id).text =
+            currentItem.entry.locationID.toString()
+        holder.itemView.findViewById<TextView>(R.id.item_rssi).text =
+            "RSSI: " + currentItem.entry.rssi.toString() + " dbm"
         val checkBox = holder.itemView.findViewById<CheckBox>(R.id.excludeCheckBox)
         checkBox.setOnClickListener {
             currentItem.switchState()

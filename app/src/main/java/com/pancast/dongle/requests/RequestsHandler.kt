@@ -107,7 +107,7 @@ class RequestsHandler {
                     en.ephemeralID,
                     //Base64.getEncoder().encodeToString(en.ephemeralID.decodeHex()),
                     en.dongleTime, en.beaconTime, en.beaconID, en.locationID
-                    /* TODO: upload rssi value too */
+                    /* TODO: upload beaconTimeInterval, dongleTimeInterval, and rssi value too */
                 )
             )
             if (i < data.size - 1) {
