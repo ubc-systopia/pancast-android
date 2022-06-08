@@ -20,6 +20,8 @@ class EntryHandler(ctx: Context): PacketHandler {
 
     // telemetry
     var count: MutableLiveData<Int> = MutableLiveData(0)
+    var encounter: MutableLiveData<Int> = MutableLiveData(0)
+    var avgRssi: MutableLiveData<Double> = MutableLiveData(0.0)
 
     override fun handlePayload(payload: ByteArray, rssi: Int) {
         val truncatedData = payload.copyOfRange(0, MaxBroadcastSize)
@@ -37,6 +39,15 @@ class EntryHandler(ctx: Context): PacketHandler {
 
     private fun logEncounter(input: ByteArray, rssi: Int) {
         count.value = count.value?.plus(1)
+        if (mEntryRepository.entries.value?.size == 0)
+            encounter.value = encounter.value?.plus(0)
+        else
+            encounter.value = mEntryRepository.entries.value?.size?.let {
+                encounter.value?.plus(mEntryRepository.entries.value!!.size)
+            }
+
+        avgRssi.value = avgRssi.value?.plus(rssi)
+
         // need some form of expiry mechanism for old ephemeral IDs within the map. cron job to remove
         // old entries from the cache?
         val decoded: DecodedData = decodeData(input)

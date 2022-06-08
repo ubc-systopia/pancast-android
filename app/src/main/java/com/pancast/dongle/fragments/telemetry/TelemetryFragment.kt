@@ -28,10 +28,25 @@ class TelemetryFragment : Fragment() {
 
         val entryHandler = EntryHandler.getEntryHandler(requireContext())
         val countView: TextView = view.findViewById(R.id.numCount)
+        val avgRssiView: TextView = view.findViewById(R.id.avgRssi)
+        val encounterView: TextView = view.findViewById(R.id.numEncounters)
+        var myCount = 0
+
         val countObserver = Observer<Int> {
-            countView.text = it.toString()
+            myCount = it
+            countView.text = "#pkts: " + it.toString()
+        }
+        val encounterObserver = Observer<Int> {
+            val count = it?.let { it } ?: run { 0 }
+            encounterView.text = "#encounters: " + count.toString()
+        }
+        val rssiObserver = Observer<Double> {
+            avgRssiView.text = "avg rssi: " + String.format("%.2f", (it/myCount)) + " dbm"
         }
         entryHandler.count.observe(viewLifecycleOwner, countObserver)
+        entryHandler.encounter.observe(viewLifecycleOwner, encounterObserver)
+        entryHandler.avgRssi.observe(viewLifecycleOwner, rssiObserver)
+
         return view
     }
 }
