@@ -4,11 +4,13 @@ import android.bluetooth.BluetoothAdapter
 import android.bluetooth.le.*
 import android.content.Context
 import android.os.Build
+import android.util.Log
 import androidx.annotation.RequiresApi
 import com.pancast.dongle.fragments.home.EntryHandler.Companion.getEntryHandler
 import com.pancast.dongle.fragments.home.handlers.GAENHandler
 import com.pancast.dongle.fragments.home.handlers.GAENHandler.Companion.getGaenHandler
 import com.pancast.dongle.fragments.telemetry.PowerGraph
+import com.pancast.dongle.utilities.toHexString
 
 
 class Scanner(entryHandler: EntryHandler, gaenHandler: GAENHandler) {
@@ -20,15 +22,17 @@ class Scanner(entryHandler: EntryHandler, gaenHandler: GAENHandler) {
 
     private val mBlueAdapter: BluetoothAdapter = BluetoothAdapter.getDefaultAdapter()
     private val mBluetoothLeScanner: BluetoothLeScanner =
-        BluetoothAdapter.getDefaultAdapter().bluetoothLeScanner
+        mBlueAdapter.bluetoothLeScanner
     private val mScanCallback: ScanCallback = object : ScanCallback() {
         @RequiresApi(Build.VERSION_CODES.O)
         override fun onScanResult(callbackType: Int, result: ScanResult?) {
             super.onScanResult(callbackType, result)
             if (result == null || result.scanRecord == null) return
             val data = result.scanRecord!!.bytes
+
             if (entryHandler.isOfType(data)) {
                 // BEGIN TELEMETRY
+//                Log.w("SR", "len: " + data.size + ", dev: " + result.device.address.toString())
                 lastScansBuffer.add(result.rssi)
                 if (result.rssi < lastScansMin) {
                     lastScansMin = result.rssi
