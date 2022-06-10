@@ -8,6 +8,7 @@ import com.pancast.dongle.gaen.computeHMACAuthenticationString
 import com.pancast.dongle.utilities.decodeHex
 import com.pancast.dongle.utilities.Constants
 import com.pancast.dongle.utilities.Constants.MCC_CODE
+import com.pancast.dongle.utilities.Constants.devKey
 import com.pancast.dongle.utilities.RequestType
 import com.pancast.dongle.utilities.toHexString
 import okhttp3.*
@@ -19,6 +20,38 @@ import javax.net.ssl.SSLContext
 import javax.net.ssl.TrustManager
 
 class RequestsHandler {
+    @RequiresApi(Build.VERSION_CODES.O)
+
+    fun registerDevice(): String {
+        val sslContext: SSLContext = SSLContext.getInstance("TLSv1.2")
+        val myTrustManagerArray: Array<TrustManager> = arrayOf(NaiveTrustManager())
+        sslContext.init(null, myTrustManagerArray, SecureRandom())
+        val trustManager = NaiveTrustManager()
+        val client = OkHttpClient.Builder()
+            .sslSocketFactory(sslContext.socketFactory, trustManager)
+            .connectionSpecs(listOf(ConnectionSpec.MODERN_TLS, ConnectionSpec.COMPATIBLE_TLS))
+            .hostnameVerifier { _, _ -> true }
+            .build()
+        val url = "${Constants.WEB_PROTOCOL}://${Constants.BACKEND_ADDR}:${Constants.BACKEND_PORT}/register"
+        val contentType: MediaType = "application/json; charset=utf-8".toMediaType()
+        val body: String = "{ \"type\": 0, \"location\": \"" + devKey + "\" }"
+        val reqBody: RequestBody = body.toRequestBody(contentType)
+        val request: Request = Request.Builder()
+            .url(url)
+            .post(reqBody)
+            .build()
+        val blen = body.length
+        Log.w("R1", "$url, $contentType, $blen")
+        Log.w("R2", "$body " + reqBody.toString())
+        Log.e("[H]", request.toString())
+        val response = client.newCall(request).execute()
+        return if (response.body != null) {
+            response.body!!.string()
+        } else {
+            ""
+        }
+    }
+
     @RequiresApi(Build.VERSION_CODES.O)
     fun uploadData(data: List<Entry>, type: RequestType): String {
         val sslContext: SSLContext = SSLContext.getInstance("TLSv1.2")

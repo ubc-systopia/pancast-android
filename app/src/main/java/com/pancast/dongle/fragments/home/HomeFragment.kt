@@ -1,6 +1,7 @@
 package com.pancast.dongle.fragments.home
 
 import android.content.pm.PackageManager
+import android.os.Build
 import android.os.Bundle
 import android.os.Handler
 import android.util.Log
@@ -9,26 +10,30 @@ import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import android.widget.Button
+import android.widget.TextView
 import androidx.activity.result.ActivityResultLauncher
 import androidx.activity.result.contract.ActivityResultContracts
+import androidx.annotation.RequiresApi
 import androidx.core.app.ActivityCompat
-import androidx.lifecycle.ViewModel
 import androidx.lifecycle.ViewModelProvider
 import androidx.navigation.fragment.findNavController
 import com.pancast.dongle.R
 import com.pancast.dongle.cuckoo.CuckooFilter
-import com.pancast.dongle.data.EntryViewModel
-import com.pancast.dongle.data.ExposureKeyDao
-import com.pancast.dongle.data.ExposureKeyRepository
-import com.pancast.dongle.data.PancastDatabase
+import com.pancast.dongle.data.*
 import com.pancast.dongle.utilities.decodeHex
 import com.pancast.dongle.fragments.home.BleScannerService.Companion.startScanningService
 import com.pancast.dongle.fragments.home.BleScannerService.Companion.stopScanningService
 import com.pancast.dongle.gaen.PacketParser
 import com.pancast.dongle.gaen.getRPIsFromTEK
 import com.pancast.dongle.requests.RequestsHandler
+import com.pancast.dongle.data.LoginViewModel
+import com.pancast.dongle.utilities.Constants.devKey
 import com.pancast.dongle.utilities.showAlertDialog
 import kotlin.concurrent.thread
+
+var dbUserDevId: String = "foo"
+//var userDevId: String = view.findViewById<TextView>(R.id.registrationID).text.toString()
+//var reqUserId: String "bar"
 
 class HomeFragment : Fragment() {
 
@@ -36,7 +41,12 @@ class HomeFragment : Fragment() {
     private lateinit var mEntryViewModel: EntryViewModel
     private lateinit var exposureKeyDao: ExposureKeyDao
     private lateinit var exposureKeyRepository: ExposureKeyRepository
+    private lateinit var loginDataSource: LoginDataSource
+    private lateinit var loginDao: LoginDao
+    private lateinit var loginRepository: LoginRepository
+    private lateinit var loginViewModel: LoginViewModel
 
+    @RequiresApi(Build.VERSION_CODES.O)
     override fun onCreateView(
         inflater: LayoutInflater, container: ViewGroup?,
         savedInstanceState: Bundle?
@@ -49,6 +59,28 @@ class HomeFragment : Fragment() {
         mEntryViewModel = ViewModelProvider(this).get(EntryViewModel::class.java)
         exposureKeyDao = PancastDatabase.getDatabase(requireContext()).exposureKeyDao()
         exposureKeyRepository = ExposureKeyRepository(exposureKeyDao)
+
+        loginDataSource = LoginDataSource()
+        loginDao = PancastDatabase.getDatabase(requireContext()).loginDao()
+        loginRepository = LoginRepository(loginDataSource, loginDao)
+        loginViewModel = ViewModelProvider(this).get(LoginViewModel::class.java)
+
+        var t: Thread = thread(start=true) {
+            val dbUserEntry = loginDao.getEntry(devKey)
+            if (dbUserEntry == null) {
+                dbUserDevId = loginViewModel.register()
+//                reqUserId = loginViewModel.userDevId.value
+            } else {
+                dbUserDevId = dbUserEntry.devId
+            }
+
+        }
+        t.join()
+        Log.e("[H]", "devKey: " + devKey + // ", reqUserId: " + reqUserId + ", userDevId: " + userDevId +
+                ", dbUserDevId: " + dbUserDevId)
+        var regID: TextView = view.findViewById<TextView>(R.id.registrationID)
+        var regText: String = "Device ID: " + dbUserDevId
+        regID.setText(regText)
 
         checkLocationPermission = registerForActivityResult(
             ActivityResultContracts.RequestMultiplePermissions()) { permissions ->

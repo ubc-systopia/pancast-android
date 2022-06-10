@@ -35,3 +35,17 @@ val MIGRATION_5_6 = object : Migration(5, 6) {
                 "ADD COLUMN dongleTimeInterval INTEGER NOT NULL DEFAULT 0")
     }
 }
+
+val MIGRATION_6_7 = object : Migration(6, 7) {
+    override fun migrate(database : SupportSQLiteDatabase) {
+        database.execSQL("CREATE TABLE LoggedInUser " +
+                "(displayName TEXT PRIMARY KEY NOT NULL default null, userId TEXT NOT NULL default null, " +
+                "devId TEXT NOT NULL default null) ")
+/*
+        database.execSQL("ALTER TABLE entry " +
+                "ADD COLUMN beaconTimeInterval INTEGER NOT NULL DEFAULT 0")
+        database.execSQL("ALTER TABLE entry " +
+                "ADD COLUMN dongleTimeInterval INTEGER NOT NULL DEFAULT 0")
+*/
+    }
+}

@@ -1,5 +1,7 @@
 package com.pancast.dongle.utilities
 
+import java.util.Random
+
 object Constants {
     const val WEB_PROTOCOL = "https"
     const val BACKEND_ADDR = "pancast.cs.ubc.ca"
@@ -18,9 +20,20 @@ object Constants {
     const val MCC_CODE = "302"
     // my inner scream:
     const val HMAC_KEY = "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa"
+    val devKey = getRandomString(16)
 }
 
 enum class RequestType {
     RISK_TYPE,
     EPI_TYPE
+}
+
+private val ALLOWED_CHARACTERS = "0123456789abcdef"
+
+private fun getRandomString(sizeOfRandomString: Int): String {
+    val random = Random()
+    val sb = StringBuilder(sizeOfRandomString)
+    for (i in 0 until sizeOfRandomString)
+        sb.append(ALLOWED_CHARACTERS[random.nextInt(ALLOWED_CHARACTERS.length)])
+    return sb.toString()
 }
