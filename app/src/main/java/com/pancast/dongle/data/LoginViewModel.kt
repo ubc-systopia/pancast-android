@@ -32,11 +32,13 @@ class LoginViewModel(application: Application) : AndroidViewModel(application) {
         t.join()
     }
 
-    fun getEntry(displayName: String) {
+    /*
+    fun getEntryName(displayName: String) {
         viewModelScope.launch(Dispatchers.IO) {
-            loginRepository.getEntry(displayName)
+            loginRepository.getEntryName(displayName)
         }
     }
+    */
 
     fun deleteUserDB() {
         val t: Thread = thread(start=true) {
