@@ -2,8 +2,6 @@ package com.pancast.dongle.data
 
 import android.os.Build
 import androidx.annotation.RequiresApi
-import com.pancast.dongle.utilities.Constants.devKey
-import kotlin.concurrent.thread
 
 /**
  * Class that requests authentication and user information from the remote data source and
@@ -42,13 +40,8 @@ class LoginRepository(val logindataSource: LoginDataSource, private val logDao: 
     }
 
     @RequiresApi(Build.VERSION_CODES.O)
-    fun register(): String {
+    fun register(userId: String, displayName: String): String {
         val result = dataSource.register()
-//        Log.w("[H]", "LoginRepo devId: " + result)
-
-        val user = LoggedInUser("PanCast", devKey, result)
-        var t: Thread = thread(start=true) { addEntry(user) }
-        t.join()
         return result
     }
 }

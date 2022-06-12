@@ -2,6 +2,7 @@ package com.pancast.dongle.data
 
 import android.app.Application
 import android.os.Build
+import android.util.Log
 import androidx.annotation.RequiresApi
 import androidx.lifecycle.*
 
@@ -23,10 +24,12 @@ class LoginViewModel(application: Application) : AndroidViewModel(application) {
         loginRepository = LoginRepository(loginDataSource, loginDao)
     }
 
-    fun addEntry(user: LoggedInUser) {
-        viewModelScope.launch(Dispatchers.IO) {
+    fun addEntry(userId: String, displayName: String, result: String) {
+        val user = LoggedInUser(userId, displayName, result)
+        var t: Thread = thread(start = true) {
             loginRepository.addEntry(user)
         }
+        t.join()
     }
 
     fun getEntry(displayName: String) {
@@ -45,12 +48,15 @@ class LoginViewModel(application: Application) : AndroidViewModel(application) {
     }
 
     @RequiresApi(Build.VERSION_CODES.O)
-    fun register(): String {
-        val result = loginRepository.register()
-//        Log.w("[H]", "LoginViewModel devId: " + result)
-
+    fun register(userId: String, displayName: String): String {
+        // get device ID from backend
+        val result = loginRepository.register(userId, displayName)
+        // insert mapping <devKey, PanCastUUID, result> into loginDao DB of the phone
+        addEntry(userId, displayName, result)
+        // update in-memory mutable state
         _devId.postValue(result)
-        userDevId = MutableLiveData<String>(result)
+        userDevId = MutableLiveData(result)
+
         return result
     }
 }

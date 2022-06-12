@@ -65,12 +65,14 @@ class HomeFragment : Fragment() {
         loginRepository = LoginRepository(loginDataSource, loginDao)
         loginViewModel = ViewModelProvider(this).get(LoginViewModel::class.java)
 
+//        loginViewModel.deleteUserDB()
+
         var t: Thread = thread(start=true) {
             dbUserEntry = loginDao.getEntryDevKey(devKey)
             Log.d("[H]", "devKey: " + devKey + ", #DB entries: " +
                 loginRepository.getNumEntriesDB() + ", dbUserEntry: " + dbUserEntry?.devId)
             if (dbUserEntry == null) {
-                dbUserDevId = loginViewModel.register()
+                dbUserDevId = loginViewModel.register(devKey, PanCastUUID)
             } else {
                 dbUserDevId = dbUserEntry!!.devId
             }
