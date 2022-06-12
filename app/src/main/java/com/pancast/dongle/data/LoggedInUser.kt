@@ -19,10 +19,18 @@ data class LoggedInUser(
 @Dao
 interface LoginDao {
     @Query("SELECT * FROM LoggedInUser WHERE displayName = :displayName")
-    fun getEntry(displayName: String): LoggedInUser
+    fun getEntryName(displayName: String): LoggedInUser
+
+    @Query("SELECT * FROM LoggedInUser WHERE userId = :userId")
+    fun getEntryDevKey(userId: String): LoggedInUser
 
     // insert new entry
     @Insert(onConflict = OnConflictStrategy.IGNORE)
     fun insert(entry: LoggedInUser)
 
+    @Query("DELETE FROM LoggedInUser")
+    fun deleteAll()
+
+    @Query("SELECT COUNT(devId) FROM LoggedInUser")
+    fun numEntries(): Int
 }

@@ -7,6 +7,7 @@ import androidx.lifecycle.*
 
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
+import kotlin.concurrent.thread
 
 class LoginViewModel(application: Application) : AndroidViewModel(application) {
 
@@ -32,6 +33,15 @@ class LoginViewModel(application: Application) : AndroidViewModel(application) {
         viewModelScope.launch(Dispatchers.IO) {
             loginRepository.getEntry(displayName)
         }
+    }
+
+    fun deleteUserDB() {
+        val t: Thread = thread(start=true) {
+            val count = loginRepository.getNumEntriesDB()
+            loginRepository.clearUserDB()
+            Log.e("[H]", "deleted " + count.toString() + " entries")
+        }
+        t.join()
     }
 
     @RequiresApi(Build.VERSION_CODES.O)

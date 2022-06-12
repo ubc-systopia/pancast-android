@@ -19,8 +19,20 @@ class LoginRepository(val logindataSource: LoginDataSource, private val logDao: 
         loginDao.insert(user)
     }
 
-    fun getEntry(displayName: String): LoggedInUser {
-        return loginDao.getEntry(displayName)
+    fun getEntryName(displayName: String): LoggedInUser {
+        return loginDao.getEntryName(displayName)
+    }
+
+    fun getEntryDevKey(userId: String): LoggedInUser {
+        return loginDao.getEntryDevKey(userId)
+    }
+
+    fun getNumEntriesDB(): Int {
+        return loginDao.numEntries()
+    }
+
+    fun clearUserDB() {
+        loginDao.deleteAll()
     }
 
     init {
