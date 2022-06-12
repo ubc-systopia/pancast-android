@@ -27,13 +27,13 @@ import com.pancast.dongle.gaen.PacketParser
 import com.pancast.dongle.gaen.getRPIsFromTEK
 import com.pancast.dongle.requests.RequestsHandler
 import com.pancast.dongle.data.LoginViewModel
+import com.pancast.dongle.utilities.Constants.PanCastUUID
 import com.pancast.dongle.utilities.Constants.devKey
 import com.pancast.dongle.utilities.showAlertDialog
 import kotlin.concurrent.thread
 
 var dbUserDevId: String = "foo"
-//var userDevId: String = view.findViewById<TextView>(R.id.registrationID).text.toString()
-//var reqUserId: String "bar"
+var dbUserEntry: LoggedInUser ?= null
 
 class HomeFragment : Fragment() {
 
@@ -66,20 +66,20 @@ class HomeFragment : Fragment() {
         loginViewModel = ViewModelProvider(this).get(LoginViewModel::class.java)
 
         var t: Thread = thread(start=true) {
-            val dbUserEntry = loginDao.getEntry(devKey)
+            dbUserEntry = loginDao.getEntryDevKey(devKey)
+            Log.d("[H]", "devKey: " + devKey + ", #DB entries: " +
+                loginRepository.getNumEntriesDB() + ", dbUserEntry: " + dbUserEntry?.devId)
             if (dbUserEntry == null) {
                 dbUserDevId = loginViewModel.register()
-//                reqUserId = loginViewModel.userDevId.value
             } else {
-                dbUserDevId = dbUserEntry.devId
+                dbUserDevId = dbUserEntry!!.devId
             }
-
         }
         t.join()
-        Log.e("[H]", "devKey: " + devKey + // ", reqUserId: " + reqUserId + ", userDevId: " + userDevId +
-                ", dbUserDevId: " + dbUserDevId)
+
         var regID: TextView = view.findViewById<TextView>(R.id.registrationID)
-        var regText: String = "Device ID: " + dbUserDevId
+        var regText: String = "Android ID:  " + PanCastUUID + "\nDevice Key: " + devKey +
+                "\nDevice ID:    " + dbUserDevId
         regID.setText(regText)
 
         checkLocationPermission = registerForActivityResult(

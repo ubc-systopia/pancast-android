@@ -1,6 +1,11 @@
 package com.pancast.dongle.utilities
 
-import java.util.Random
+import android.annotation.SuppressLint
+import android.bluetooth.BluetoothAdapter
+import android.provider.Settings
+import android.util.Log
+import com.pancast.dongle.utilities.Constants.locationStringLen
+import java.util.*
 
 object Constants {
     const val WEB_PROTOCOL = "https"
@@ -20,7 +25,10 @@ object Constants {
     const val MCC_CODE = "302"
     // my inner scream:
     const val HMAC_KEY = "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa"
-    val devKey = getRandomString(16)
+    const val locationStringLen = 16
+    @SuppressLint("HardwareIds")
+    val PanCastUUID = BluetoothAdapter.getDefaultAdapter().address
+    val devKey = getRandomString(PanCastUUID)
 }
 
 enum class RequestType {
@@ -30,10 +38,12 @@ enum class RequestType {
 
 private val ALLOWED_CHARACTERS = "0123456789abcdef"
 
-private fun getRandomString(sizeOfRandomString: Int): String {
-    val random = Random()
-    val sb = StringBuilder(sizeOfRandomString)
-    for (i in 0 until sizeOfRandomString)
+fun getRandomString(inputSeed: String): String {
+    val hash =  Objects.hashCode(inputSeed)
+    Log.d("[H]", "input[" + inputSeed.length + "]: " + inputSeed + ", h1:" + hash.toString())
+    val random = Random(hash.toLong())
+    val sb = StringBuilder(locationStringLen)
+    for (i in 0 until locationStringLen)
         sb.append(ALLOWED_CHARACTERS[random.nextInt(ALLOWED_CHARACTERS.length)])
     return sb.toString()
 }
