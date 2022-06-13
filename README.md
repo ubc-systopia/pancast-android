@@ -6,18 +6,6 @@ Adapted from https://www.youtube.com/watch?v=wLRQ9EClYuA
 ## Prerequisites
 An Android device with Bluetooth capabilities (according to the documentation for the Android emulator, it does not support Bluetooth emulation, hence why you'll need an Android phone).
 
-## Build from source
-1) Install Android Studio. 
-2) Clone this repo.
-3) Open it in Android Studio, and wait for the project to index and sync.
-4) If nothing went wrong, the toolbar at the top of your screen should have an android face with "app" next to it.
-5) To its right is the target, where the app will actually run. Connect your Android device to your PC by USB (or setup your ADB over Wi-Fi if you'd like. YMMV).
-6) Verify that you can select your device as the target for installation.
-7) Run app, and hope that nothing goes wrong.
-
-## Upload binary
-Copy pancast-android/app/build/outputs/apk/debug/app-debug.apk to a public HTTP server.
-
 ## Install APK
 
 ### From Chrome browser on phone:
@@ -41,3 +29,16 @@ permission in recent android versions, which was not supported earlier. (I
 believe earlier versions require the ACCESS_COURSE_LOCATION permission, and
 even older versions don't need location permission at all. Will have to
 programatically detect the android version to avoid this issue).
+
+### Build from source
+1) Install Android Studio. 
+2) Clone this repo.
+3) Open it in Android Studio, and wait for the project to index and sync.
+4) If nothing went wrong, the toolbar at the top of your screen should have an android face with "app" next to it.
+5) To its right is the target, where the app will actually run. Connect your Android device to your PC by USB (or setup your ADB over Wi-Fi if you'd like. YMMV).
+6) Verify that you can select your device as the target for installation.
+7) Run app, and hope that nothing goes wrong.
+
+### Upload binary
+Copy pancast-android/app/build/outputs/apk/debug/app-debug.apk to a public HTTP server.
+
