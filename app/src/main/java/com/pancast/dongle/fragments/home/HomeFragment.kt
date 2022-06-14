@@ -72,7 +72,7 @@ class HomeFragment : Fragment() {
         PanCastUUID = getDeviceId(requireContext())
         devKey = getRandomString(PanCastUUID)
 
-        var t: Thread = thread(start=true) {
+        val t: Thread = thread(start=true) {
             dbUserEntry = loginDao.getEntryDevKey(devKey)
             Log.d("[H]", "devKey: " + devKey + ", #DB entries: " +
                 loginRepository.getNumEntriesDB() + ", dbUserEntry: " + dbUserEntry?.devId)
@@ -84,8 +84,8 @@ class HomeFragment : Fragment() {
         }
         t.join()
 
-        var regID: TextView = view.findViewById<TextView>(R.id.registrationID)
-        var regText: String = "Android ID:  " + PanCastUUID + "\nDevice Key: " + devKey +
+        val regID: TextView = view.findViewById<TextView>(R.id.registrationID)
+        val regText: String = "Android ID:  " + PanCastUUID + "\nDevice Key: " + devKey +
                 "\nDevice ID:    " + dbUserDevId
         regID.setText(regText)
 
