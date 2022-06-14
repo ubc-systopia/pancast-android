@@ -8,7 +8,6 @@ import com.pancast.dongle.gaen.computeHMACAuthenticationString
 import com.pancast.dongle.utilities.decodeHex
 import com.pancast.dongle.utilities.Constants
 import com.pancast.dongle.utilities.Constants.MCC_CODE
-import com.pancast.dongle.utilities.Constants.devKey
 import com.pancast.dongle.utilities.RequestType
 import com.pancast.dongle.utilities.toHexString
 import okhttp3.*
@@ -22,7 +21,7 @@ import javax.net.ssl.TrustManager
 class RequestsHandler {
     @RequiresApi(Build.VERSION_CODES.O)
 
-    fun registerDevice(): String {
+    fun registerDevice(userId: String): String {
         val sslContext: SSLContext = SSLContext.getInstance("TLSv1.2")
         val myTrustManagerArray: Array<TrustManager> = arrayOf(NaiveTrustManager())
         sslContext.init(null, myTrustManagerArray, SecureRandom())
@@ -34,7 +33,7 @@ class RequestsHandler {
             .build()
         val url = "${Constants.WEB_PROTOCOL}://${Constants.BACKEND_ADDR}:${Constants.BACKEND_PORT}/register"
         val contentType: MediaType = "application/json; charset=utf-8".toMediaType()
-        val body: String = "{ \"type\": 0, \"location\": \"" + devKey + "\" }"
+        val body: String = "{ \"type\": 0, \"location\": \"" + userId + "\" }"
         val reqBody: RequestBody = body.toRequestBody(contentType)
         val request: Request = Request.Builder()
             .url(url)

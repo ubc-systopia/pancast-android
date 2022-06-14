@@ -31,9 +31,9 @@ fun readJson(){
 class LoginDataSource {
 
     @RequiresApi(Build.VERSION_CODES.O)
-    fun register(): String {
+    fun register(userId: String): String {
         try {
-            val result = RequestsHandler().registerDevice()
+            val result = RequestsHandler().registerDevice(userId)
             Log.e("[H]", "register query response: " + result)
             val jsonobj = JSONObject(result)
             val devId: Int = jsonobj.optInt("DeviceID")

@@ -41,7 +41,7 @@ class LoginRepository(val logindataSource: LoginDataSource, private val logDao: 
 
     @RequiresApi(Build.VERSION_CODES.O)
     fun register(userId: String, displayName: String): String {
-        val result = dataSource.register()
+        val result = dataSource.register(userId)
         return result
     }
 }

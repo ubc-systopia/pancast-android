@@ -27,13 +27,15 @@ import com.pancast.dongle.gaen.PacketParser
 import com.pancast.dongle.gaen.getRPIsFromTEK
 import com.pancast.dongle.requests.RequestsHandler
 import com.pancast.dongle.data.LoginViewModel
-import com.pancast.dongle.utilities.Constants.PanCastUUID
-import com.pancast.dongle.utilities.Constants.devKey
+import com.pancast.dongle.utilities.getDeviceId
+import com.pancast.dongle.utilities.getRandomString
 import com.pancast.dongle.utilities.showAlertDialog
 import kotlin.concurrent.thread
 
 var dbUserDevId: String = "foo"
 var dbUserEntry: LoggedInUser ?= null
+var PanCastUUID: String = ""
+var devKey: String = ""
 
 class HomeFragment : Fragment() {
 
@@ -66,6 +68,9 @@ class HomeFragment : Fragment() {
         loginViewModel = ViewModelProvider(this).get(LoginViewModel::class.java)
 
 //        loginViewModel.deleteUserDB()
+
+        PanCastUUID = getDeviceId(requireContext())
+        devKey = getRandomString(PanCastUUID)
 
         var t: Thread = thread(start=true) {
             dbUserEntry = loginDao.getEntryDevKey(devKey)

@@ -1,9 +1,10 @@
 package com.pancast.dongle.utilities
 
 import android.annotation.SuppressLint
-import android.bluetooth.BluetoothAdapter
-import android.provider.Settings
+import android.content.Context
+import android.provider.Settings.Secure
 import android.util.Log
+import androidx.core.content.ContentProviderCompat.requireContext
 import com.pancast.dongle.utilities.Constants.locationStringLen
 import java.util.*
 
@@ -26,9 +27,6 @@ object Constants {
     // my inner scream:
     const val HMAC_KEY = "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa"
     const val locationStringLen = 16
-    @SuppressLint("HardwareIds")
-    val PanCastUUID = BluetoothAdapter.getDefaultAdapter().address
-    val devKey = getRandomString(PanCastUUID)
 }
 
 enum class RequestType {
@@ -37,6 +35,10 @@ enum class RequestType {
 }
 
 private val ALLOWED_CHARACTERS = "0123456789abcdef"
+
+fun getDeviceId(context: Context): String {
+    return Secure.getString(context.contentResolver, Secure.ANDROID_ID)
+}
 
 fun getRandomString(inputSeed: String): String {
     val hash =  Objects.hashCode(inputSeed)
