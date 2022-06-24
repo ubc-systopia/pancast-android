@@ -11,6 +11,7 @@ import com.pancast.dongle.R
 import com.pancast.dongle.data.Entry
 import com.pancast.dongle.utilities.minutesIntoDateTime
 import com.pancast.dongle.utilities.minutesIntoTime
+import okhttp3.internal.toHexString
 
 class StorageAdapter: RecyclerView.Adapter<StorageAdapter.EntryViewHolder>() {
 
@@ -29,7 +30,7 @@ class StorageAdapter: RecyclerView.Adapter<StorageAdapter.EntryViewHolder>() {
         holder.itemView.findViewById<TextView>(R.id.item_eph_id).text =
             currentItem.entry.ephemeralID
         holder.itemView.findViewById<TextView>(R.id.item_beacon_id).text =
-            currentItem.entry.beaconID.toString()
+            "0x" + currentItem.entry.beaconID.toHexString()
         holder.itemView.findViewById<TextView>(R.id.item_date).text =
             "[D] " + minutesIntoDateTime(currentItem.entry.dongleTime)
         holder.itemView.findViewById<TextView>(R.id.item_dongle_interval).text =
@@ -39,7 +40,7 @@ class StorageAdapter: RecyclerView.Adapter<StorageAdapter.EntryViewHolder>() {
         holder.itemView.findViewById<TextView>(R.id.item_beacon_interval).text =
             currentItem.entry.beaconTimeInterval.toString() + " min"
         holder.itemView.findViewById<TextView>(R.id.item_location_id).text =
-            currentItem.entry.locationID.toString()
+            "0x" + currentItem.entry.locationID.toHexString()
         holder.itemView.findViewById<TextView>(R.id.item_rssi).text =
             "RSSI: " + currentItem.entry.rssi.toString() + " dbm"
         val checkBox = holder.itemView.findViewById<CheckBox>(R.id.excludeCheckBox)
