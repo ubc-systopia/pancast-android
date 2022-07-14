@@ -86,8 +86,8 @@
     <CheckBox
         android:id="@+id/excludeCheckBox"
         android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
+        android:layout_height="40dp"
         app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintTop_toTopOf="@+id/item_eph_id" />
+        app:layout_constraintBottom_toTopOf="@+id/item_dongle_interval" />
 
 </androidx.constraintlayout.widget.ConstraintLayout>

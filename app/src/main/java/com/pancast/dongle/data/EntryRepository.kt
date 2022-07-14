@@ -11,7 +11,7 @@ class EntryRepository(private val entryDao: EntryDao) {
     }
 
     fun updateEntry(entry: Entry) {
-        entryDao.update(entry.ephemeralID, entry.beaconTimeInterval, entry.dongleTimeInterval)
+        entryDao.update(entry.ephemeralID, entry.beaconTimeInterval, entry.dongleTimeInterval, entry.rssi)
     }
 
     fun getAllEntries(): List<Entry> {

@@ -18,7 +18,8 @@ data class Entry(
     var beaconTimeInterval: Int,
     val dongleTime: Int,
     var dongleTimeInterval: Int,
-    val rssi: Int
+    var rssi: Int,
+    var numObservations: Int,
 ): Parcelable
 
 val MIGRATION_4_5 = object : Migration(4, 5) {
@@ -41,11 +42,13 @@ val MIGRATION_6_7 = object : Migration(6, 7) {
         database.execSQL("CREATE TABLE LoggedInUser " +
                 "(displayName TEXT PRIMARY KEY NOT NULL default null, userId TEXT NOT NULL default null, " +
                 "devId TEXT NOT NULL default null) ")
-/*
-        database.execSQL("ALTER TABLE entry " +
-                "ADD COLUMN beaconTimeInterval INTEGER NOT NULL DEFAULT 0")
-        database.execSQL("ALTER TABLE entry " +
-                "ADD COLUMN dongleTimeInterval INTEGER NOT NULL DEFAULT 0")
-*/
     }
 }
+
+val MIGRATION_7_8 = object : Migration(7, 8) {
+    override fun migrate(database : SupportSQLiteDatabase) {
+        database.execSQL("ALTER TABLE entry " +
+                "ADD COLUMN numObservations INTEGER NOT NULL DEFAULT 1")
+    }
+}
+

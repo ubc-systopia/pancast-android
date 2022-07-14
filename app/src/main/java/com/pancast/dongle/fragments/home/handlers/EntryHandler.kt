@@ -61,7 +61,7 @@ class EntryHandler(ctx: Context): PacketHandler {
             if (numEntries == 0) {
                 val entry = Entry(decoded.ephemeralID.toHexString(), decoded.beaconID,
                     decoded.locationID, decoded.beaconTime, 1,
-                    getMinutesSinceLinuxEpoch().toInt(), 1, rssi)
+                    getMinutesSinceLinuxEpoch().toInt(), 1, rssi, 1)
                 mEntryRepository.addEntry(entry)
             } else if (numEntries == 1) {
                 val entry = mEntryRepository.getEntry(decoded.ephemeralID.toHexString())
@@ -71,6 +71,7 @@ class EntryHandler(ctx: Context): PacketHandler {
                 val newDongleTime = getMinutesSinceLinuxEpoch().toInt()
                 entry.beaconTimeInterval = newBeaconTime - oldBeaconTime + 1
                 entry.dongleTimeInterval = newDongleTime - oldDongleTime
+                entry.rssi = rssi
                 mEntryRepository.updateEntry(entry)
             } else {
                 // we should not be reaching here, maybe raise an exception

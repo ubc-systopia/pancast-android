@@ -27,9 +27,10 @@ interface EntryDao {
     fun insert(entry: Entry)
 
     @Query("UPDATE entry SET " +
-            "beaconTimeInterval = :beaconTimeInterval, dongleTimeInterval = :dongleTimeInterval " +
+            "beaconTimeInterval = :beaconTimeInterval, dongleTimeInterval = :dongleTimeInterval, " +
+            "numObservations = numObservations + 1, rssi = rssi + :rssi " +
             "WHERE ephemeralID = :ephID")
-    fun update(ephID: String, beaconTimeInterval: Int, dongleTimeInterval: Int)
+    fun update(ephID: String, beaconTimeInterval: Int, dongleTimeInterval: Int, rssi: Int)
 
     // delete all entries older than 14 days old
     @Query("DELETE FROM entry WHERE (:currTime) - dongleTime >= $MINUTES_IN_WINDOW")

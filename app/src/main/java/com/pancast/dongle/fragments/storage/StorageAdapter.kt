@@ -32,7 +32,8 @@ class StorageAdapter: RecyclerView.Adapter<StorageAdapter.EntryViewHolder>() {
         holder.itemView.findViewById<TextView>(R.id.item_beacon_id).text =
             "0x" + currentItem.entry.beaconID.toHexString()
         holder.itemView.findViewById<TextView>(R.id.item_date).text =
-            "[D] " + minutesIntoDateTime(currentItem.entry.dongleTime)
+            "[D] " + minutesIntoDateTime(currentItem.entry.dongleTime) + ", " +
+                    currentItem.entry.dongleTime
         holder.itemView.findViewById<TextView>(R.id.item_dongle_interval).text =
             currentItem.entry.dongleTimeInterval.toString() + " min"
         holder.itemView.findViewById<TextView>(R.id.item_beacon_time).text =
@@ -42,7 +43,8 @@ class StorageAdapter: RecyclerView.Adapter<StorageAdapter.EntryViewHolder>() {
         holder.itemView.findViewById<TextView>(R.id.item_location_id).text =
             "0x" + currentItem.entry.locationID.toHexString()
         holder.itemView.findViewById<TextView>(R.id.item_rssi).text =
-            "RSSI: " + currentItem.entry.rssi.toString() + " dbm"
+            "RSSI: " + (currentItem.entry.rssi/currentItem.entry.numObservations).toString() + " dbm (" +
+                    currentItem.entry.numObservations + ")"
         val checkBox = holder.itemView.findViewById<CheckBox>(R.id.excludeCheckBox)
         checkBox.setOnClickListener {
             currentItem.switchState()
